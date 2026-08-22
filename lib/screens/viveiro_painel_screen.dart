@@ -6,6 +6,7 @@ import '../domain/calculadoras.dart';
 import '../domain/modelos.dart';
 import '../domain/qualidade_agua.dart';
 import '../state/app_state.dart';
+import '../widgets/scroll_hide_scaffold.dart';
 
 /// Painel do viveiro: biometria → biomassa → ração diária + boas práticas.
 /// Fluxo principal de trabalho, reaproveitando os dados já cadastrados.
@@ -55,7 +56,7 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
     final faltandoDens = dens == null;
     final faltandoBio = ultima == null;
 
-    return Scaffold(
+    return ScrollHideScaffold(
       appBar: AppBar(
         title: Text(vivo.nome),
         actions: [

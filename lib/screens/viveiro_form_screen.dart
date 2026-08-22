@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/scroll_hide_scaffold.dart';
 
 /// Cadastro/edição de um viveiro (nome, área, densidade opcional).
 class ViveiroFormScreen extends StatefulWidget {
@@ -105,7 +106,7 @@ class _ViveiroFormScreenState extends State<ViveiroFormScreen> {
         _preenchido = true;
       }
     }
-    return Scaffold(
+    return ScrollHideScaffold(
       appBar: AppBar(title: Text(_editando ? 'Editar viveiro' : 'Novo viveiro')),
       body: Form(
         key: _formKey,

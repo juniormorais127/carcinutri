@@ -1,4 +1,4 @@
-# Publica o Carcini Calc (Flutter web) no GitHub Pages.
+# Publica o AQUACENSO (Flutter web) no GitHub Pages.
 #
 # Dispara automaticamente a cada push na branch `main`: roda os testes,
 # compila o build web e publica a pasta `build/web`. Assim, o app fica

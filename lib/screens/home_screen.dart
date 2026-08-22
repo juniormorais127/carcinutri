@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/scroll_hide_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,8 +12,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Carcini Calc')),
+    return ScrollHideScaffold(
+      appBar: AppBar(title: const Text('AQUACENSO')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/viveiro'),
         icon: const Icon(Icons.add),

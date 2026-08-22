@@ -13,6 +13,7 @@ import 'screens/projecao_screen.dart';
 import 'screens/viveiro_form_screen.dart';
 import 'screens/viveiro_painel_screen.dart';
 import 'state/app_state.dart';
+import 'widgets/scroll_hide_scaffold.dart';
 
 final GoRouter _router = GoRouter(
   routes: [
@@ -77,9 +78,8 @@ class _AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
+    return ScrollHideScaffold(
+      bottomBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (i) => navigationShell.goBranch(
           i,
@@ -92,6 +92,7 @@ class _AppShell extends StatelessWidget {
               icon: Icon(Icons.calendar_month), label: 'Projeção'),
         ],
       ),
+      body: navigationShell,
     );
   }
 }
@@ -103,16 +104,16 @@ final ThemeData _tema = ThemeData(
       const InputDecorationTheme(border: OutlineInputBorder()),
 );
 
-class CarciniApp extends StatelessWidget {
+class AquacensoApp extends StatelessWidget {
   final AppState state;
-  const CarciniApp({super.key, required this.state});
+  const AquacensoApp({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: state,
       child: MaterialApp.router(
-        title: 'Carcini Calc',
+        title: 'AQUACENSO',
         theme: _tema,
         routerConfig: _router,
       ),

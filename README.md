@@ -1,4 +1,4 @@
-# Carcini Calc 🦐
+# AQUACENSO 🦐
 
 Aplicativo **offline** de calculadoras de carcinicultura para pequenos produtores
 sem internet. Flutter web + Android, com banco local (sembast / IndexedDB).

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../domain/crescimento.dart';
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/scroll_hide_scaffold.dart';
 
 /// Tela dedicada ao gráfico de crescimento: evolução do peso médio (g) ao
 /// longo do tempo, por viveiro, mais um resumo das métricas do ciclo.
@@ -49,7 +50,7 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
     final cron = biometriasCronologicas(biometrias);
     final resumo = resumirCrescimento(cron);
 
-    return Scaffold(
+    return ScrollHideScaffold(
       appBar: AppBar(title: const Text('Crescimento')),
       body: ListView(
         padding: const EdgeInsets.all(16),

@@ -13,5 +13,5 @@ Future<void> main() async {
   final db = await AppDatabase.abrir();
   final state = AppState(db);
   await state.carregar();
-  runApp(CarciniApp(state: state));
+  runApp(AquacensoApp(state: state));
 }

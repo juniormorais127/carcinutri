@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../domain/modelos.dart';
 import '../domain/projecao.dart';
 import '../state/app_state.dart';
+import '../widgets/scroll_hide_scaffold.dart';
 
 /// Aba Projeção: arraçoamento de todo o ciclo + crescimento esperado,
 /// comparado com a biometria registrada.
@@ -112,7 +113,7 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
     final diaAtual = _dataPovoamento == null
         ? null
         : DateTime.now().difference(_dataPovoamento!).inDays;
-    return Scaffold(
+    return ScrollHideScaffold(
       appBar: AppBar(title: const Text('Projeção do ciclo')),
       body: ListView(
         padding: const EdgeInsets.all(16),
