@@ -6,6 +6,7 @@ import 'screens/arracoamento_recomendado_screen.dart';
 import 'screens/biometria_form_screen.dart';
 import 'screens/calculo_screen.dart';
 import 'screens/calculadoras_screen.dart';
+import 'screens/crescimento_screen.dart';
 import 'screens/historico_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/projecao_screen.dart';
@@ -43,6 +44,13 @@ final GoRouter _router = GoRouter(
               tipo: s.pathParameters['tipo']!,
               viveiroId: s.uri.queryParameters['viveiro'],
             )),
+    GoRoute(
+        path: '/crescimento',
+        builder: (_, __) => const CrescimentoScreen()),
+    GoRoute(
+        path: '/crescimento/:id',
+        builder: (_, s) =>
+            CrescimentoScreen(viveiroId: s.pathParameters['id'])),
     GoRoute(path: '/viveiro', builder: (_, __) => const ViveiroFormScreen()),
     GoRoute(
         path: '/viveiro/:id',

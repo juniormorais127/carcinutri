@@ -60,6 +60,11 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
         title: Text(vivo.nome),
         actions: [
           IconButton(
+            tooltip: 'Gráfico de crescimento',
+            icon: const Icon(Icons.show_chart),
+            onPressed: () => context.push('/crescimento/${vivo.id}'),
+          ),
+          IconButton(
             tooltip: 'Histórico de cálculos',
             icon: const Icon(Icons.history),
             onPressed: () => context.push('/historico/${vivo.id}'),
