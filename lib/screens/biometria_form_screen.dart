@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../domain/modelos.dart';
 import '../domain/qualidade_agua.dart';
 import '../state/app_state.dart';
-import '../widgets/scroll_hide_scaffold.dart';
 
 /// Registra uma biometria (amostra + contagem → peso médio) em um viveiro,
 /// junto da qualidade de água medida na mesma visita semanal (boas práticas).
@@ -156,7 +155,7 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
     final vivo = state.porId(_viveiroId);
     final pesoMedio = _pesoMedio;
 
-    return ScrollHideScaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('Registrar biometria')),
       body: Form(
         key: _formKey,

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../domain/calculadoras.dart';
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
-import '../widgets/scroll_hide_scaffold.dart';
 
 /// Histórico de cálculos — de um viveiro específico (por id) ou de todos.
 class HistoricoScreen extends StatelessWidget {
@@ -18,7 +17,7 @@ class HistoricoScreen extends StatelessWidget {
     final viveiro = state.porId(id);
     final calculos = state.calculosDoViveiro(id);
 
-    return ScrollHideScaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(viveiro != null ? 'Histórico · ${viveiro.nome}' : 'Histórico'),
       ),

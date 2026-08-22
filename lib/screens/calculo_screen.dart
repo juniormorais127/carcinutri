@@ -6,7 +6,6 @@ import '../domain/modelos.dart';
 import '../state/app_state.dart';
 import '../widgets/campo_calculo.dart';
 import '../widgets/result_card.dart';
-import '../widgets/scroll_hide_scaffold.dart';
 
 /// Tela genérica de cálculo: campos de entrada → resultado → salvar.
 /// Um viveiro pode ser selecionado (ou passado via [viveiroId]) para
@@ -141,7 +140,7 @@ class _CalculoScreenState extends State<CalculoScreen> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    return ScrollHideScaffold(
+    return Scaffold(
       appBar: AppBar(title: Text('${_def.icone} ${_def.titulo}')),
       body: ListView(
         padding: const EdgeInsets.all(16),

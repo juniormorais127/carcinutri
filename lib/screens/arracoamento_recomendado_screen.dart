@@ -5,7 +5,6 @@ import '../domain/arracoamento.dart';
 import '../domain/calculadoras.dart';
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
-import '../widgets/scroll_hide_scaffold.dart';
 
 /// Recomendação de arraçoamento (FAO / L. vannamei): quanto fornecer hoje,
 /// em quantos tratos e como usar a bandeja, a partir do peso médio atual.
@@ -132,7 +131,7 @@ class _ArracoamentoRecomendadoScreenState
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    return ScrollHideScaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('Recomendação de arraçoamento')),
       body: ListView(
         padding: const EdgeInsets.all(16),
