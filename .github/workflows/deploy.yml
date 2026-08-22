@@ -1,0 +1,56 @@
+# Publica o Carcini Calc (Flutter web) no GitHub Pages.
+#
+# Dispara automaticamente a cada push na branch `main`: roda os testes,
+# compila o build web e publica a pasta `build/web`. Assim, o app fica
+# sempre atualizado sem ação manual.
+name: Deploy web (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Só um deploy por vez (o push mais recente cancela o anterior).
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.19.6
+          cache: true
+
+      - name: Instalar dependências
+        run: flutter pub get
+
+      - name: Testes
+        run: flutter test
+
+      - name: Build web (base href = /<nome-do-repo>/)
+        # O app é servido numa subpasta do Pages; o base href correto
+        # evita erros de asset ao carregar sob /<repo>/.
+        run: flutter build web --release --base-href=/${{ github.event.repository.name }}/
+
+      - name: Empacotar site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
