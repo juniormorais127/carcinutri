@@ -118,6 +118,33 @@ class HomeScreen extends StatelessWidget {
                     height: 1.4,
                   ),
                 ),
+                const SizedBox(height: 14),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.13),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.offline_bolt_rounded,
+                          color: Color(0xFF9AF7BA), size: 16),
+                      SizedBox(width: 6),
+                      Text(
+                        'SISTEMA OFFLINE ATIVO',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

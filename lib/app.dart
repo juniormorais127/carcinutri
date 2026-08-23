@@ -167,35 +167,45 @@ final ThemeData _tema = _criarTema();
 
 ThemeData _criarTema() {
   const verde = Color(0xFF16A34A);
-  final cores = ColorScheme.fromSeed(
+  const profundo = Color(0xFF071F26);
+  final coresBase = ColorScheme.fromSeed(
     seedColor: verde,
     brightness: Brightness.light,
     surface: const Color(0xFFF8FAF8),
   );
+  final cores = coresBase.copyWith(
+    primary: const Color(0xFF0F9F4D),
+    secondary: const Color(0xFF0F766E),
+    tertiary: const Color(0xFF0891B2),
+  );
   final base = ThemeData(colorScheme: cores, useMaterial3: true);
 
   return base.copyWith(
-    scaffoldBackgroundColor: const Color(0xFFF4F7F4),
+    scaffoldBackgroundColor: const Color(0xFFF1F7F4),
     appBarTheme: AppBarTheme(
       centerTitle: false,
       elevation: 0,
-      scrolledUnderElevation: 1,
-      backgroundColor: const Color(0xFFF4F7F4),
-      foregroundColor: cores.onSurface,
+      scrolledUnderElevation: 2,
+      shadowColor: Colors.black.withOpacity(0.16),
+      backgroundColor: profundo,
+      foregroundColor: Colors.white,
       titleTextStyle: base.textTheme.titleLarge?.copyWith(
-        color: cores.onSurface,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.3,
+        color: Colors.white,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.2,
       ),
+      iconTheme: const IconThemeData(color: Colors.white),
+      actionsIconTheme: const IconThemeData(color: Colors.white),
     ),
     cardTheme: CardTheme(
-      elevation: 0,
+      elevation: 1,
       margin: EdgeInsets.zero,
-      color: Colors.white,
+      color: Colors.white.withOpacity(0.96),
       surfaceTintColor: Colors.transparent,
+      shadowColor: profundo.withOpacity(0.12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: cores.outlineVariant.withOpacity(0.7)),
+        side: BorderSide(color: cores.secondary.withOpacity(0.13)),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -229,10 +239,20 @@ ThemeData _criarTema() {
     navigationBarTheme: NavigationBarThemeData(
       height: 72,
       elevation: 2,
-      backgroundColor: Colors.white,
-      indicatorColor: cores.primaryContainer,
+      backgroundColor: profundo,
+      indicatorColor: cores.primary.withOpacity(0.24),
+      iconTheme: MaterialStateProperty.resolveWith(
+        (states) => IconThemeData(
+          color: states.contains(MaterialState.selected)
+              ? const Color(0xFF62E694)
+              : const Color(0xFFB8C8CC),
+        ),
+      ),
       labelTextStyle: MaterialStateProperty.resolveWith(
         (states) => TextStyle(
+          color: states.contains(MaterialState.selected)
+              ? Colors.white
+              : const Color(0xFFB8C8CC),
           fontSize: 12,
           fontWeight: states.contains(MaterialState.selected)
               ? FontWeight.w700
@@ -241,13 +261,16 @@ ThemeData _criarTema() {
       ),
     ),
     navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: Colors.white,
-      indicatorColor: cores.primaryContainer,
+      backgroundColor: profundo,
+      indicatorColor: cores.primary.withOpacity(0.24),
       minWidth: 88,
-      selectedLabelTextStyle: TextStyle(
-        color: cores.primary,
+      selectedIconTheme: const IconThemeData(color: Color(0xFF62E694)),
+      unselectedIconTheme: const IconThemeData(color: Color(0xFFB8C8CC)),
+      selectedLabelTextStyle: const TextStyle(
+        color: Colors.white,
         fontWeight: FontWeight.w700,
       ),
+      unselectedLabelTextStyle: const TextStyle(color: Color(0xFFB8C8CC)),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
