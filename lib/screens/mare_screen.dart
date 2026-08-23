@@ -1,5 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/responsive_layout.dart';
 import 'package:provider/provider.dart';
 
 import '../data/mare_api.dart';
@@ -180,8 +182,7 @@ class _MareScreenState extends State<MareScreen> {
       if (!mounted) return;
       await _usarCacheOuManual(repo, chave, ano, mes);
       setState(() {
-        _erro =
-            'Não foi possível buscar a maré real. Usando dados salvos ou o '
+        _erro = 'Não foi possível buscar a maré real. Usando dados salvos ou o '
             'modelo manual abaixo.';
         _buscando = false;
       });
@@ -258,8 +259,7 @@ class _MareScreenState extends State<MareScreen> {
     final temReal = _temRepo;
     return Scaffold(
       appBar: AppBar(title: const Text('Maré')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
         children: [
           if (temReal) ...[
             _cardReal(),
@@ -483,8 +483,7 @@ class _MareScreenState extends State<MareScreen> {
                         size: 18,
                         color: e.preamar ? Colors.orange : Colors.blue),
                     const SizedBox(width: 8),
-                    Expanded(
-                        child: Text(e.preamar ? 'Preamar' : 'Baixa-mar')),
+                    Expanded(child: Text(e.preamar ? 'Preamar' : 'Baixa-mar')),
                     Text('${_hora(e.tempo)} · ${_fmt(e.nivelM)} m',
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                   ],
@@ -538,10 +537,10 @@ class _MareScreenState extends State<MareScreen> {
                     ),
                   ),
                   titlesData: FlTitlesData(
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -702,14 +701,16 @@ class _MareScreenState extends State<MareScreen> {
             const Text('Marés de hoje',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 8),
-            if (hoje.isEmpty)
-              const Text('Nenhum evento dentro de hoje.'),
+            if (hoje.isEmpty) const Text('Nenhum evento dentro de hoje.'),
             for (final e in hoje)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   children: [
-                    Icon(e.tipo.ehPreamar ? Icons.arrow_upward : Icons.arrow_downward,
+                    Icon(
+                        e.tipo.ehPreamar
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
                         size: 18,
                         color: e.tipo.ehPreamar ? Colors.orange : Colors.blue),
                     const SizedBox(width: 8),
@@ -766,10 +767,10 @@ class _MareScreenState extends State<MareScreen> {
                     ),
                   ),
                   titlesData: FlTitlesData(
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../domain/crescimento.dart';
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Tela dedicada ao gráfico de crescimento: evolução do peso médio (g) ao
 /// longo do tempo, por viveiro, mais um resumo das métricas do ciclo.
@@ -51,8 +52,7 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Crescimento')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
         children: [
           if (state.viveiros.isNotEmpty) ...[
             _seletorViveiro(state),
@@ -129,9 +129,7 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
               child: LineChart(
                 LineChartData(
                   minX: 0,
-                  maxX: spots.length > 1
-                      ? spots.last.x
-                      : spots.first.x + 1,
+                  maxX: spots.length > 1 ? spots.last.x : spots.first.x + 1,
                   minY: _minY(spots),
                   maxY: _maxY(spots),
                   gridData: FlGridData(
@@ -143,10 +141,10 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
                     ),
                   ),
                   titlesData: FlTitlesData(
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -166,7 +164,9 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
                             : 1,
                         getTitlesWidget: (v, meta) {
                           final i = v.round();
-                          if (i < 0 || i >= cron.length) return const SizedBox();
+                          if (i < 0 || i >= cron.length) {
+                            return const SizedBox();
+                          }
                           return Text(
                             _dataCurta(cron[i].data),
                             style: TextStyle(
@@ -181,11 +181,9 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
                     touchTooltipData: LineTouchTooltipData(
                       getTooltipItems: (touched) => touched.map((t) {
                         final i = t.x.round();
-                        final data = i >= 0 && i < cron.length
-                            ? cron[i].data
-                            : null;
-                        final dataTxt =
-                            data == null ? '' : ' · ${_data(data)}';
+                        final data =
+                            i >= 0 && i < cron.length ? cron[i].data : null;
+                        final dataTxt = data == null ? '' : ' · ${_data(data)}';
                         return LineTooltipItem(
                           '${_fmt(t.y)} g$dataTxt',
                           TextStyle(

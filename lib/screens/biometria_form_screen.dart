@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../domain/modelos.dart';
 import '../domain/qualidade_agua.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Registra uma biometria (amostra + contagem → peso médio) em um viveiro,
 /// junto da qualidade de água medida na mesma visita semanal (boas práticas).
@@ -111,8 +112,8 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
     final state = context.read<AppState>();
     final viveiroId = _viveiroId;
     if (viveiroId == null) {
-      messenger.showSnackBar(
-          const SnackBar(content: Text('Selecione um viveiro.')));
+      messenger
+          .showSnackBar(const SnackBar(content: Text('Selecione um viveiro.')));
       return;
     }
     final agora = DateTime.now().microsecondsSinceEpoch.toString();
@@ -120,8 +121,7 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
       id: agora,
       viveiroId: viveiroId,
       data: _data,
-      pesoAmostraKg:
-          double.parse(_peso.text.trim().replaceAll(',', '.')),
+      pesoAmostraKg: double.parse(_peso.text.trim().replaceAll(',', '.')),
       nAmostrado: int.parse(_contagem.text.trim()),
     );
     await state.salvarBiometria(b);
@@ -159,8 +159,8 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
       appBar: AppBar(title: const Text('Registrar biometria')),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: ResponsiveListView(
+          maxWidth: 760,
           children: [
             if (widget.viveiroId == null) ...[
               DropdownButtonFormField<String>(
@@ -173,8 +173,8 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
                 items: [
                   const DropdownMenuItem<String>(
                       value: '', child: Text('Selecione')),
-                  ...state.viveiros.map((v) =>
-                      DropdownMenuItem<String>(value: v.id, child: Text(v.nome))),
+                  ...state.viveiros.map((v) => DropdownMenuItem<String>(
+                      value: v.id, child: Text(v.nome))),
                 ],
                 onChanged: (id) => setState(
                     () => _viveiroId = (id == null || id.isEmpty) ? null : id),
@@ -188,8 +188,7 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.calendar_today),
               title: const Text('Data'),
-              subtitle: Text(
-                  '${_data.day.toString().padLeft(2, '0')}/'
+              subtitle: Text('${_data.day.toString().padLeft(2, '0')}/'
                   '${_data.month.toString().padLeft(2, '0')}/${_data.year}'),
               trailing: TextButton(
                 onPressed: _escolherData,
@@ -282,8 +281,7 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
     );
   }
 
-  Widget _secaoQualidadeAgua(
-      BuildContext context, AvaliacaoQualidade? av) {
+  Widget _secaoQualidadeAgua(BuildContext context, AvaliacaoQualidade? av) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -303,7 +301,8 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
               spacing: 12,
               runSpacing: 12,
               children: [
-                SizedBox(width: 140, child: _campoAgua(_od, 'Oxigênio', 'mg/L')),
+                SizedBox(
+                    width: 140, child: _campoAgua(_od, 'Oxigênio', 'mg/L')),
                 SizedBox(width: 100, child: _campoAgua(_ph, 'pH', '')),
                 SizedBox(
                     width: 120, child: _campoAgua(_temperatura, 'Temp.', '°C')),
@@ -326,8 +325,8 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(
-                            '${p.rotulo}: ${_fmt(p.valor)} ${p.unidade}'),
+                        child:
+                            Text('${p.rotulo}: ${_fmt(p.valor)} ${p.unidade}'),
                       ),
                       _chip(p.status),
                     ],

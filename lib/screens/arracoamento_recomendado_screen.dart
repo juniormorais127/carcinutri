@@ -5,6 +5,7 @@ import '../domain/arracoamento.dart';
 import '../domain/calculadoras.dart';
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Recomendação de arraçoamento (FAO / L. vannamei): quanto fornecer hoje,
 /// em quantos tratos e como usar a bandeja, a partir do peso médio atual.
@@ -18,6 +19,7 @@ class ArracoamentoRecomendadoScreen extends StatefulWidget {
 }
 
 enum _ModoCamaroes { vivos, povoamento }
+
 enum _ModoTaxa { recomendado, manual }
 
 class _ArracoamentoRecomendadoScreenState
@@ -72,6 +74,7 @@ class _ArracoamentoRecomendadoScreenState
         _povoados.text = _fmt(v.densidadePadrao! * v.areaHa * 10000);
       }
     }
+
     if (notificar) {
       setState(aplica);
     } else {
@@ -95,8 +98,7 @@ class _ArracoamentoRecomendadoScreenState
         pesoMedio: peso,
         nVivos: nVivos,
         nTratos: _nTratos,
-        taxaManual:
-            _modoTaxa == _ModoTaxa.manual ? _parse(_taxaManual) : null,
+        taxaManual: _modoTaxa == _ModoTaxa.manual ? _parse(_taxaManual) : null,
       );
       setState(() {
         _resultado = r;
@@ -133,8 +135,8 @@ class _ArracoamentoRecomendadoScreenState
     final state = context.watch<AppState>();
     return Scaffold(
       appBar: AppBar(title: const Text('Recomendação de arraçoamento')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
+        maxWidth: 860,
         children: [
           Text(
             'Camarão-branco-do-Pacífico · fase engorda · base FAO.',
@@ -164,8 +166,7 @@ class _ArracoamentoRecomendadoScreenState
                   label: Text('Povoou + sobrev.')),
             ],
             selected: {_modoCamaroes},
-            onSelectionChanged: (s) =>
-                setState(() => _modoCamaroes = s.first),
+            onSelectionChanged: (s) => setState(() => _modoCamaroes = s.first),
           ),
           const SizedBox(height: 12),
           if (_modoCamaroes == _ModoCamaroes.vivos)
@@ -319,7 +320,8 @@ class _ArracoamentoRecomendadoScreenState
             const SizedBox(width: 8),
             Expanded(
               child: Text(aviso,
-                  style: TextStyle(color: corTexto, fontWeight: FontWeight.w500)),
+                  style:
+                      TextStyle(color: corTexto, fontWeight: FontWeight.w500)),
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/calculadoras.dart';
+import '../widgets/responsive_layout.dart';
 
 class CalculadorasScreen extends StatelessWidget {
   const CalculadorasScreen({super.key});
@@ -10,24 +11,41 @@ class CalculadorasScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Calculadoras')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
         children: [
           _bannerRecomendacao(context),
-          const SizedBox(height: 16),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.4,
-            ),
-            itemCount: todasCalculadoras.length,
-            itemBuilder: (context, i) {
-              final d = todasCalculadoras[i];
-              return _card(context, d);
+          const SizedBox(height: 24),
+          Text('Ferramentas',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final largura = constraints.maxWidth;
+              final colunas = largura >= 960
+                  ? 4
+                  : largura >= 680
+                      ? 3
+                      : largura >= 420
+                          ? 2
+                          : 1;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: colunas,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  mainAxisExtent: 164,
+                ),
+                itemCount: todasCalculadoras.length,
+                itemBuilder: (context, i) {
+                  final d = todasCalculadoras[i];
+                  return _card(context, d);
+                },
+              );
             },
           ),
         ],
@@ -46,7 +64,16 @@ class CalculadorasScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const Text('🍽️', style: TextStyle(fontSize: 32)),
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: cores.primary,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(Icons.restaurant_rounded,
+                    color: cores.onPrimary, size: 28),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -64,8 +91,7 @@ class CalculadorasScreen extends StatelessWidget {
                       'Camarão-branco-do-Pacífico · base FAO. Quanto '
                       'fornecer hoje, em quantos tratos e como usar a bandeja.',
                       style: TextStyle(
-                          color:
-                              cores.onPrimaryContainer.withOpacity(0.85)),
+                          color: cores.onPrimaryContainer.withOpacity(0.85)),
                     ),
                   ],
                 ),
@@ -84,14 +110,25 @@ class CalculadorasScreen extends StatelessWidget {
       child: InkWell(
         onTap: () => context.push('/calculadora/${d.tipo.name}'),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(d.icone, style: const TextStyle(fontSize: 26)),
-              const SizedBox(height: 8),
+              Container(
+                width: 42,
+                height: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(d.icone, style: const TextStyle(fontSize: 22)),
+              ),
+              const Spacer(),
               Text(d.titulo,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: 4),
               Text(
                 d.descricao,

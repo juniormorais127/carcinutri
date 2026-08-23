@@ -6,6 +6,7 @@ import '../domain/calculadoras.dart';
 import '../domain/modelos.dart';
 import '../domain/qualidade_agua.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Painel do viveiro: biometria → biomassa → ração diária + boas práticas.
 /// Fluxo principal de trabalho, reaproveitando os dados já cadastrados.
@@ -78,8 +79,7 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
         children: [
           _cabecalho(vivo),
           const SizedBox(height: 12),
@@ -94,7 +94,8 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
             const SizedBox(height: 12),
             _botoesCalculadoras(context, vivo),
           ] else
-            _cardAviso(context, faltandoDens: faltandoDens, faltandoBio: faltandoBio),
+            _cardAviso(context,
+                faltandoDens: faltandoDens, faltandoBio: faltandoBio),
         ],
       ),
     );
@@ -126,7 +127,8 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Peso médio do camarão',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 TextButton(
                   onPressed: () => context.push('/biometria/${v.id}'),
                   child: const Text('Registrar'),
@@ -155,8 +157,8 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
     );
   }
 
-  Widget _cardQualidadeAgua(BuildContext context, Viveiro v,
-      QualidadeAgua? ultimaAgua) {
+  Widget _cardQualidadeAgua(
+      BuildContext context, Viveiro v, QualidadeAgua? ultimaAgua) {
     final av = ultimaAgua == null ? null : avaliarQualidadeAgua(ultimaAgua);
     return Card(
       child: Padding(
@@ -168,7 +170,8 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Qualidade de água',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 TextButton(
                   onPressed: () => context.push('/biometria/${v.id}'),
                   child: const Text('Registrar'),
@@ -190,8 +193,8 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(
-                            '${p.rotulo}: ${_fmt(p.valor)} ${p.unidade}'),
+                        child:
+                            Text('${p.rotulo}: ${_fmt(p.valor)} ${p.unidade}'),
                       ),
                       _chip(p.status),
                     ],
@@ -212,10 +215,12 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
       titulo: 'Biomassa (estimada)',
       itens: [
         ('Biomassa total', '${_fmt(biomassa)} kg', true),
-        ('Base',
-            'biometria de ${ultima == null ? '—' : _data(ultima.data)} × '
-            'área × densidade',
-            false),
+        (
+          'Base',
+          'biometria de ${ultima == null ? '—' : _data(ultima.data)} × '
+              'área × densidade',
+          false
+        ),
       ],
     );
   }
@@ -326,14 +331,14 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
       runSpacing: 8,
       children: [
         FilledButton.tonalIcon(
-          onPressed: () => context
-              .push('/calculadora/biomassa?viveiro=${v.id}'),
+          onPressed: () =>
+              context.push('/calculadora/biomassa?viveiro=${v.id}'),
           icon: const Icon(Icons.calculate),
           label: const Text('Calcular biomassa'),
         ),
         FilledButton.tonalIcon(
-          onPressed: () => context
-              .push('/calculadora/arracoamento?viveiro=${v.id}'),
+          onPressed: () =>
+              context.push('/calculadora/arracoamento?viveiro=${v.id}'),
           icon: const Icon(Icons.restaurant),
           label: const Text('Calcular ração'),
         ),
@@ -418,8 +423,8 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
     );
   }
 
-  Future<void> _acao(BuildContext context, AppState state, Viveiro v,
-      String opcao) async {
+  Future<void> _acao(
+      BuildContext context, AppState state, Viveiro v, String opcao) async {
     switch (opcao) {
       case 'editar':
         context.push('/viveiro/${v.id}');

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../domain/calculadoras.dart';
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Histórico de cálculos — de um viveiro específico (por id) ou de todos.
 class HistoricoScreen extends StatelessWidget {
@@ -19,14 +20,19 @@ class HistoricoScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(viveiro != null ? 'Histórico · ${viveiro.nome}' : 'Histórico'),
+        title:
+            Text(viveiro != null ? 'Histórico · ${viveiro.nome}' : 'Histórico'),
       ),
       body: calculos.isEmpty
           ? const _Vazio()
-          : ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: calculos.length,
-              itemBuilder: (context, i) => _item(context, state, calculos[i]),
+          : ResponsiveListView(
+              maxWidth: 860,
+              children: [
+                for (final calculo in calculos) ...[
+                  _item(context, state, calculo),
+                  const SizedBox(height: 10),
+                ],
+              ],
             ),
     );
   }
@@ -36,14 +42,12 @@ class HistoricoScreen extends StatelessWidget {
     final nomeViveiro =
         c.viveiroId == null ? '' : state.porId(c.viveiroId)?.nome ?? '';
     final quando = _dataHora(c.criadoEm);
-    final principal = c.resultado.entries.isNotEmpty
-        ? c.resultado.entries.last
-        : null;
+    final principal =
+        c.resultado.entries.isNotEmpty ? c.resultado.entries.last : null;
 
     return Card(
       child: ListTile(
-        leading: Text(def?.icone ?? '🧮',
-            style: const TextStyle(fontSize: 24)),
+        leading: Text(def?.icone ?? '🧮', style: const TextStyle(fontSize: 24)),
         title: Text(def?.titulo ?? c.tipo.name),
         subtitle: Text([
           if (principal != null) '${principal.key}: ${principal.value}',

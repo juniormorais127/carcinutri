@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../domain/modelos.dart';
 import '../domain/projecao.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Aba Projeção: arraçoamento de todo o ciclo + crescimento esperado,
 /// comparado com a biometria registrada.
@@ -86,8 +87,8 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
       return;
     }
     if (peso70 == null || peso70 <= 0) {
-      messenger.showSnackBar(
-          const SnackBar(content: Text('Informe o peso esperado aos 70 dias.')));
+      messenger.showSnackBar(const SnackBar(
+          content: Text('Informe o peso esperado aos 70 dias.')));
       return;
     }
     final sobrev =
@@ -114,8 +115,7 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
         : DateTime.now().difference(_dataPovoamento!).inDays;
     return Scaffold(
       appBar: AppBar(title: const Text('Projeção do ciclo')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
         children: [
           Text(
             'Previsão do arraçoamento diário e do crescimento esperado '
@@ -270,8 +270,8 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
     );
   }
 
-  Widget _planilha(
-      BuildContext context, ProjecaoCiclo c, {required int? diaAtual}) {
+  Widget _planilha(BuildContext context, ProjecaoCiclo c,
+      {required int? diaAtual}) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -281,8 +281,7 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
             const Padding(
               padding: EdgeInsets.all(8),
               child: Text('Planilha diária',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -361,9 +360,10 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
     final idade = b.data.difference(povo).inDays;
     final peso70 = _parse(_peso70) ?? 9.5;
     final pesoInicial = _parse(_pesoInicial) ?? 0.05;
-    final esperado = pesoEsperado(idade,
-        pesoInicial: pesoInicial, peso70: peso70);
-    final cmp = compararComEsperado(pesoReal: b.pesoMedio, pesoEsperado: esperado);
+    final esperado =
+        pesoEsperado(idade, pesoInicial: pesoInicial, peso70: peso70);
+    final cmp =
+        compararComEsperado(pesoReal: b.pesoMedio, pesoEsperado: esperado);
     final cor = _corStatus(cmp.status);
     final sinal = cmp.difG >= 0 ? '+' : '';
     return Column(
@@ -372,7 +372,8 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
         Text('${_data(b.data)} · idade $idade dias',
             style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 2),
-        Text('Real: ${_fmt(b.pesoMedio)} g · Esperado: ${_fmt(esperado)} g '
+        Text(
+            'Real: ${_fmt(b.pesoMedio)} g · Esperado: ${_fmt(esperado)} g '
             '($sinal${_fmt(cmp.difG)} g, $sinal${_fmt(cmp.difPct)}%)',
             style: TextStyle(fontWeight: FontWeight.bold, color: cor)),
       ],

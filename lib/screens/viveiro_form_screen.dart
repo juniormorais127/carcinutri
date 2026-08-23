@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../domain/modelos.dart';
 import '../state/app_state.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Cadastro/edição de um viveiro (nome, área, densidade opcional).
 class ViveiroFormScreen extends StatefulWidget {
@@ -106,11 +107,12 @@ class _ViveiroFormScreenState extends State<ViveiroFormScreen> {
       }
     }
     return Scaffold(
-      appBar: AppBar(title: Text(_editando ? 'Editar viveiro' : 'Novo viveiro')),
+      appBar:
+          AppBar(title: Text(_editando ? 'Editar viveiro' : 'Novo viveiro')),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: ResponsiveListView(
+          maxWidth: 720,
           children: [
             TextFormField(
               controller: _nome,
@@ -130,7 +132,8 @@ class _ViveiroFormScreenState extends State<ViveiroFormScreen> {
                 suffixText: 'ha',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 final val = double.tryParse((v ?? '').replaceAll(',', '.'));
                 if (val == null || val <= 0) {
@@ -149,7 +152,8 @@ class _ViveiroFormScreenState extends State<ViveiroFormScreen> {
                 helperText:
                     'Usada para pré-preencher as calculadoras de área/densidade.',
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 12),
             TextFormField(

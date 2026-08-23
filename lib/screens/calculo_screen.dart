@@ -6,6 +6,7 @@ import '../domain/modelos.dart';
 import '../state/app_state.dart';
 import '../widgets/campo_calculo.dart';
 import '../widgets/result_card.dart';
+import '../widgets/responsive_layout.dart';
 
 /// Tela genérica de cálculo: campos de entrada → resultado → salvar.
 /// Um viveiro pode ser selecionado (ou passado via [viveiroId]) para
@@ -53,7 +54,8 @@ class _CalculoScreenState extends State<CalculoScreen> {
     void aplica() {
       _viveiroId = v?.id;
       _resultado = null;
-      final b = v == null ? null : context.read<AppState>().ultimaBiometria(v.id);
+      final b =
+          v == null ? null : context.read<AppState>().ultimaBiometria(v.id);
       for (final c in _def.campos) {
         if (c.chaveViveiro == 'area') {
           _ctrl[c.id]!.text = v == null ? '' : _fmt(v.areaHa);
@@ -77,6 +79,7 @@ class _CalculoScreenState extends State<CalculoScreen> {
         }
       }
     }
+
     if (notificar) {
       setState(aplica);
     } else {
@@ -142,8 +145,8 @@ class _CalculoScreenState extends State<CalculoScreen> {
     final state = context.watch<AppState>();
     return Scaffold(
       appBar: AppBar(title: Text('${_def.icone} ${_def.titulo}')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveListView(
+        maxWidth: 720,
         children: [
           Text(_def.descricao, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 16),
