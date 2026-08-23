@@ -12,9 +12,15 @@ void main() {
     expect(find.text('Maré'), findsOneWidget); // AppBar
     expect(find.text('Amplitude da maré'), findsOneWidget);
     expect(find.text('Horário da preamar'), findsOneWidget);
+
+    // O gráfico e a lista de marés ficam abaixo da dobra no viewport — rola.
+    await tester.scrollUntilVisible(
+      find.text('Marés de hoje'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Marés de hoje'), findsOneWidget);
 
-    // O gráfico fica abaixo da dobra no viewport do teste — rola até ele.
     await tester.scrollUntilVisible(
       find.textContaining('Altura da maré hoje'),
       200,

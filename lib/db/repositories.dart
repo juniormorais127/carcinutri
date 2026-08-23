@@ -115,3 +115,26 @@ class QualidadeAguaRepositorio {
     await _store.record(id).delete(_db);
   }
 }
+
+/// Cache da maré real (tábua mensal, estados e portos) no banco local.
+///
+/// Guarda o JSON cru da API para a aba Maré funcionar offline. Uma única
+/// requisição/mês por porto abastece o cache inteiro, respeitando a cota.
+class MareRepositorio {
+  final Database _db;
+  final StoreRef<String, Object?> _store;
+  MareRepositorio(this._db, this._store);
+
+  Future<Map<String, Object?>?> ler(String chave) async {
+    final v = await _store.record(chave).get(_db);
+    return v == null ? null : Map<String, Object?>.from(v as Map);
+  }
+
+  Future<void> salvar(String chave, Map<String, Object?> valor) async {
+    await _store.record(chave).put(_db, valor);
+  }
+
+  Future<void> remover(String chave) async {
+    await _store.record(chave).delete(_db);
+  }
+}

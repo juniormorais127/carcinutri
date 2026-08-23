@@ -11,13 +11,15 @@ class AppState extends ChangeNotifier {
         calculosRepo = CalculoRepositorio(db.db, db.calculos),
         biometriasRepo = BiometriaRepositorio(db.db, db.biometrias),
         qualidadeAguaRepo =
-            QualidadeAguaRepositorio(db.db, db.qualidadeAgua);
+            QualidadeAguaRepositorio(db.db, db.qualidadeAgua),
+        mareRepo = MareRepositorio(db.db, db.mare);
 
   final AppDatabase db;
   final ViveiroRepositorio viveirosRepo;
   final CalculoRepositorio calculosRepo;
   final BiometriaRepositorio biometriasRepo;
   final QualidadeAguaRepositorio qualidadeAguaRepo;
+  final MareRepositorio mareRepo;
 
   List<Viveiro> _viveiros = [];
   List<Calculo> _calculos = [];

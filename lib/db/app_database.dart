@@ -39,4 +39,7 @@ class AppDatabase {
 
   StoreRef<String, Object?> get qualidadeAgua =>
       stringMapStoreFactory.store('qualidade_agua');
+
+  StoreRef<String, Object?> get mare =>
+      stringMapStoreFactory.store('mare');
 }
