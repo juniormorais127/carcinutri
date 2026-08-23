@@ -125,7 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cores.primary, const Color(0xFF0F766E)],
+          colors: [
+            cores.primary,
+            Color.lerp(cores.primary, cores.onPrimary, 0.12)!,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -167,20 +170,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.13),
+                    color: cores.onPrimary.withOpacity(0.13),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    border: Border.all(color: cores.onPrimary.withOpacity(0.2)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.offline_bolt_rounded,
-                          color: Color(0xFF9AF7BA), size: 16),
+                      Icon(Icons.offline_bolt_rounded, size: 16),
                       SizedBox(width: 6),
                       Text(
                         'SISTEMA OFFLINE ATIVO',
                         style: TextStyle(
-                          color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
@@ -535,16 +536,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Icon(Icons.info_outline_rounded,
-                        size: 14, color: cores.secondary),
+                        size: 14, color: cores.onSurfaceVariant),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
                         'Complete densidade e biometria para ver as estimativas.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: cores.secondary,
-                            ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(color: cores.primary),
                       ),
                     ),
                   ],
@@ -653,7 +655,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _configuracaoDespesca(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
     return Card(
-      color: cores.secondaryContainer.withOpacity(0.5),
+      color: cores.surfaceVariant.withOpacity(0.5),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: LayoutBuilder(
@@ -687,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.tune_rounded, size: 18, color: cores.secondary),
+                    Icon(Icons.tune_rounded, size: 18, color: cores.primary),
                     const SizedBox(width: 8),
                     const Text('Parâmetros da estimativa',
                         style: TextStyle(fontWeight: FontWeight.w700)),
@@ -778,7 +780,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         alvoAtingido
                             ? Icons.task_alt_rounded
                             : Icons.insights_outlined,
-                        color: alvoAtingido ? cores.primary : cores.secondary,
+                        color: cores.primary,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -839,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: Theme.of(context)
                       .textTheme
                       .labelSmall
-                      ?.copyWith(color: cores.secondary),
+                      ?.copyWith(color: cores.onSurfaceVariant),
                 ),
               ],
             ],
@@ -855,7 +857,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String valor,
     IconData icon,
   ) {
-    final cor = Theme.of(context).colorScheme.secondary;
+    final cor = Theme.of(context).colorScheme.primary;
     return Expanded(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

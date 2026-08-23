@@ -381,13 +381,14 @@ class _ProjecaoScreenState extends State<ProjecaoScreen> {
   }
 
   Color _corStatus(String status) {
+    final cores = Theme.of(context).colorScheme;
     switch (status) {
       case 'acima':
-        return Colors.blue;
+        return cores.primary;
       case 'abaixo':
-        return Colors.orange;
+        return cores.tertiary;
       default:
-        return Colors.green;
+        return cores.primary;
     }
   }
 

@@ -299,16 +299,17 @@ class _ArracoamentoRecomendadoScreenState
   Widget _alerta(BuildContext context, RecomendacaoArracoamento r) {
     final aviso = r.aviso;
     if (aviso == null) return const SizedBox.shrink();
+    final cores = Theme.of(context).colorScheme;
     final cor = r.status == 'acima'
-        ? Colors.orange.shade100
+        ? cores.tertiaryContainer
         : r.status == 'abaixo'
-            ? Colors.red.shade100
-            : Colors.amber.shade100;
+            ? cores.errorContainer
+            : cores.tertiaryContainer;
     final corTexto = r.status == 'acima'
-        ? Colors.orange.shade900
+        ? cores.onTertiaryContainer
         : r.status == 'abaixo'
-            ? Colors.red.shade900
-            : Colors.amber.shade900;
+            ? cores.onErrorContainer
+            : cores.onTertiaryContainer;
     return Card(
       color: cor,
       child: Padding(
@@ -316,7 +317,7 @@ class _ArracoamentoRecomendadoScreenState
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.warning_amber, color: Colors.black54),
+            Icon(Icons.warning_amber, color: corTexto),
             const SizedBox(width: 8),
             Expanded(
               child: Text(aviso,

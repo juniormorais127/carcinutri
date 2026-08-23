@@ -391,8 +391,8 @@ class _MareScreenState extends State<MareScreen> {
           fonte == 'offline' ? Icons.cloud_off : Icons.cloud_done,
           size: 16,
           color: fonte == 'offline'
-              ? Colors.orange
-              : Theme.of(context).colorScheme.primary,
+              ? Theme.of(context).colorScheme.tertiary
+              : Theme.of(context).colorScheme.secondary,
         ),
         const SizedBox(width: 6),
         Expanded(
@@ -453,7 +453,8 @@ class _MareScreenState extends State<MareScreen> {
     }
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.waves, size: 32, color: Colors.blue),
+        leading: Icon(Icons.waves,
+            size: 32, color: Theme.of(context).colorScheme.secondary),
         title: Text(prox == null
             ? 'Sem marés restantes hoje'
             : 'Próxima maré: ${prox.preamar ? 'Preamar' : 'Baixa-mar'}'),
@@ -481,7 +482,9 @@ class _MareScreenState extends State<MareScreen> {
                   children: [
                     Icon(e.preamar ? Icons.arrow_upward : Icons.arrow_downward,
                         size: 18,
-                        color: e.preamar ? Colors.orange : Colors.blue),
+                        color: e.preamar
+                            ? Theme.of(context).colorScheme.tertiary
+                            : Theme.of(context).colorScheme.secondary),
                     const SizedBox(width: 8),
                     Expanded(child: Text(e.preamar ? 'Preamar' : 'Baixa-mar')),
                     Text('${_hora(e.tempo)} · ${_fmt(e.nivelM)} m',
@@ -679,7 +682,8 @@ class _MareScreenState extends State<MareScreen> {
     final prox = r.proximoEvento(DateTime.now());
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.waves, size: 32, color: Colors.blue),
+        leading: Icon(Icons.waves,
+            size: 32, color: Theme.of(context).colorScheme.secondary),
         title: Text(prox == null
             ? 'Sem marés restantes hoje'
             : 'Próxima maré: ${prox.tipo.curto}'),
@@ -712,7 +716,9 @@ class _MareScreenState extends State<MareScreen> {
                             ? Icons.arrow_upward
                             : Icons.arrow_downward,
                         size: 18,
-                        color: e.tipo.ehPreamar ? Colors.orange : Colors.blue),
+                        color: e.tipo.ehPreamar
+                            ? Theme.of(context).colorScheme.tertiary
+                            : Theme.of(context).colorScheme.secondary),
                     const SizedBox(width: 8),
                     Expanded(child: Text(e.tipo.curto)),
                     Text('${_hora(e.tempo)} · ${_fmt(e.alturaM)} m',

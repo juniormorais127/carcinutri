@@ -86,13 +86,14 @@ class _TechBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final cores = Theme.of(context).colorScheme;
     return Stack(
       children: [
-        const Positioned.fill(
+        Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFF1FAF6), Color(0xFFF5F7FA)],
+                colors: [cores.surface, cores.surfaceVariant.withOpacity(0.45)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -113,8 +114,15 @@ class _TechBackground extends StatelessWidget {
             ),
           ),
         ),
-        const Positioned.fill(
-          child: IgnorePointer(child: CustomPaint(painter: _TechGridPainter())),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: _TechGridPainter(
+                lineColor: cores.outlineVariant.withOpacity(0.28),
+                dotColor: cores.primary.withOpacity(0.1),
+              ),
+            ),
+          ),
         ),
         Positioned.fill(child: child),
       ],
@@ -123,12 +131,15 @@ class _TechBackground extends StatelessWidget {
 }
 
 class _TechGridPainter extends CustomPainter {
-  const _TechGridPainter();
+  final Color lineColor;
+  final Color dotColor;
+
+  const _TechGridPainter({required this.lineColor, required this.dotColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     final linePaint = Paint()
-      ..color = const Color(0xFF0F766E).withOpacity(0.035)
+      ..color = lineColor
       ..strokeWidth = 1;
     const passo = 40.0;
 
@@ -139,7 +150,7 @@ class _TechGridPainter extends CustomPainter {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), linePaint);
     }
 
-    final dotPaint = Paint()..color = const Color(0xFF16A34A).withOpacity(0.1);
+    final dotPaint = Paint()..color = dotColor;
     for (var x = 0.0; x <= size.width; x += passo) {
       for (var y = 0.0; y <= size.height; y += passo) {
         canvas.drawCircle(Offset(x, y), 1.25, dotPaint);
@@ -148,5 +159,8 @@ class _TechGridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _TechGridPainter oldDelegate) {
+    return oldDelegate.lineColor != lineColor ||
+        oldDelegate.dotColor != dotColor;
+  }
 }

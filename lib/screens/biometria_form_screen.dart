@@ -375,13 +375,14 @@ class _BiometriaFormScreenState extends State<BiometriaFormScreen> {
   }
 
   Color _cor(StatusQualidade s) {
+    final cores = Theme.of(context).colorScheme;
     switch (s) {
       case StatusQualidade.ok:
-        return Colors.green;
+        return cores.primary;
       case StatusQualidade.atencao:
-        return Colors.orange;
+        return cores.tertiary;
       case StatusQualidade.critico:
-        return Colors.red;
+        return cores.error;
     }
   }
 

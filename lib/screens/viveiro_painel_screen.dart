@@ -315,13 +315,14 @@ class _ViveiroPainelScreenState extends State<ViveiroPainelScreen> {
   }
 
   Color _corStatus(StatusQualidade s) {
+    final cores = Theme.of(context).colorScheme;
     switch (s) {
       case StatusQualidade.ok:
-        return Colors.green;
+        return cores.primary;
       case StatusQualidade.atencao:
-        return Colors.orange;
+        return cores.tertiary;
       case StatusQualidade.critico:
-        return Colors.red;
+        return cores.error;
     }
   }
 

@@ -256,7 +256,9 @@ class _CrescimentoScreenState extends State<CrescimentoScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(rotulo, style: const TextStyle(color: Colors.grey)),
+          Text(rotulo,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
           Text(valor, style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
@@ -308,17 +310,19 @@ class _Vazio extends StatelessWidget {
       padding: const EdgeInsets.only(top: 40),
       child: Column(
         children: [
-          const Icon(Icons.show_chart, size: 48, color: Colors.grey),
+          Icon(Icons.show_chart,
+              size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(height: 12),
           Text(
             'Sem biometrias em "$nome".',
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Cadastre amostragens pra acompanhar o crescimento.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -331,13 +335,14 @@ class _PoucosDados extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Text(
           'Adicione mais amostragens pra ver a curva de crescimento. '
           'Com 1 ponto ainda não dá pra calcular ganho.',
-          style: TextStyle(color: Colors.grey),
+          style:
+              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ),
     );

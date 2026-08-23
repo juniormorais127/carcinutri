@@ -14,6 +14,7 @@ import 'screens/projecao_screen.dart';
 import 'screens/viveiro_form_screen.dart';
 import 'screens/viveiro_painel_screen.dart';
 import 'state/app_state.dart';
+import 'widgets/brand_watermark.dart';
 
 final GoRouter _router = GoRouter(
   routes: [
@@ -163,54 +164,48 @@ class _AppShell extends StatelessWidget {
       );
 }
 
-final ThemeData _tema = _criarTema();
+final ThemeData _temaClaro = _criarTema(Brightness.light);
+final ThemeData _temaEscuro = _criarTema(Brightness.dark);
 
-ThemeData _criarTema() {
+ThemeData _criarTema(Brightness brilho) {
   const verde = Color(0xFF16A34A);
-  const profundo = Color(0xFF071F26);
-  final coresBase = ColorScheme.fromSeed(
+  final cores = ColorScheme.fromSeed(
     seedColor: verde,
-    brightness: Brightness.light,
-    surface: const Color(0xFFF8FAF8),
-  );
-  final cores = coresBase.copyWith(
-    primary: const Color(0xFF0F9F4D),
-    secondary: const Color(0xFF0F766E),
-    tertiary: const Color(0xFF0891B2),
+    brightness: brilho,
   );
   final base = ThemeData(colorScheme: cores, useMaterial3: true);
 
   return base.copyWith(
-    scaffoldBackgroundColor: const Color(0xFFF1F7F4),
+    scaffoldBackgroundColor: cores.surface,
     appBarTheme: AppBarTheme(
       centerTitle: false,
       elevation: 0,
       scrolledUnderElevation: 2,
-      shadowColor: Colors.black.withOpacity(0.16),
-      backgroundColor: profundo,
-      foregroundColor: Colors.white,
+      shadowColor: cores.shadow.withOpacity(0.16),
+      backgroundColor: cores.surface,
+      foregroundColor: cores.onSurface,
       titleTextStyle: base.textTheme.titleLarge?.copyWith(
-        color: Colors.white,
+        color: cores.onSurface,
         fontWeight: FontWeight.w800,
         letterSpacing: 0.2,
       ),
-      iconTheme: const IconThemeData(color: Colors.white),
-      actionsIconTheme: const IconThemeData(color: Colors.white),
+      iconTheme: IconThemeData(color: cores.onSurface),
+      actionsIconTheme: IconThemeData(color: cores.onSurface),
     ),
     cardTheme: CardTheme(
       elevation: 1,
       margin: EdgeInsets.zero,
-      color: Colors.white.withOpacity(0.96),
-      surfaceTintColor: Colors.transparent,
-      shadowColor: profundo.withOpacity(0.12),
+      color: cores.surface,
+      surfaceTintColor: cores.surfaceTint.withOpacity(0),
+      shadowColor: cores.shadow.withOpacity(0.12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: cores.secondary.withOpacity(0.13)),
+        side: BorderSide(color: cores.outlineVariant.withOpacity(0.7)),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: cores.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: cores.outlineVariant),
@@ -239,20 +234,20 @@ ThemeData _criarTema() {
     navigationBarTheme: NavigationBarThemeData(
       height: 72,
       elevation: 2,
-      backgroundColor: profundo,
-      indicatorColor: cores.primary.withOpacity(0.24),
+      backgroundColor: cores.surface,
+      indicatorColor: cores.primaryContainer,
       iconTheme: MaterialStateProperty.resolveWith(
         (states) => IconThemeData(
           color: states.contains(MaterialState.selected)
-              ? const Color(0xFF62E694)
-              : const Color(0xFFB8C8CC),
+              ? cores.onPrimaryContainer
+              : cores.onSurfaceVariant,
         ),
       ),
       labelTextStyle: MaterialStateProperty.resolveWith(
         (states) => TextStyle(
           color: states.contains(MaterialState.selected)
-              ? Colors.white
-              : const Color(0xFFB8C8CC),
+              ? cores.primary
+              : cores.onSurfaceVariant,
           fontSize: 12,
           fontWeight: states.contains(MaterialState.selected)
               ? FontWeight.w700
@@ -261,16 +256,16 @@ ThemeData _criarTema() {
       ),
     ),
     navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: profundo,
-      indicatorColor: cores.primary.withOpacity(0.24),
+      backgroundColor: cores.surface,
+      indicatorColor: cores.primaryContainer,
       minWidth: 88,
-      selectedIconTheme: const IconThemeData(color: Color(0xFF62E694)),
-      unselectedIconTheme: const IconThemeData(color: Color(0xFFB8C8CC)),
-      selectedLabelTextStyle: const TextStyle(
-        color: Colors.white,
+      selectedIconTheme: IconThemeData(color: cores.onPrimaryContainer),
+      unselectedIconTheme: IconThemeData(color: cores.onSurfaceVariant),
+      selectedLabelTextStyle: TextStyle(
+        color: cores.primary,
         fontWeight: FontWeight.w700,
       ),
-      unselectedLabelTextStyle: const TextStyle(color: Color(0xFFB8C8CC)),
+      unselectedLabelTextStyle: TextStyle(color: cores.onSurfaceVariant),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
@@ -290,8 +285,13 @@ class CarciniApp extends StatelessWidget {
       value: state,
       child: MaterialApp.router(
         title: 'AQUACENSO',
-        theme: _tema,
+        theme: _temaClaro,
+        darkTheme: _temaEscuro,
+        themeMode: ThemeMode.system,
         routerConfig: _router,
+        builder: (context, child) => BrandWatermarkLayer(
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
     );
   }

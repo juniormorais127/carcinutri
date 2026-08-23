@@ -82,7 +82,8 @@ class _Vazio extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.history, size: 48, color: Colors.grey),
+          Icon(Icons.history,
+              size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(height: 8),
           const Text('Nenhum cálculo salvo.'),
           const SizedBox(height: 12),
