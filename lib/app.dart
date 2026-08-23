@@ -9,6 +9,7 @@ import 'screens/calculadoras_screen.dart';
 import 'screens/crescimento_screen.dart';
 import 'screens/historico_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/mare_screen.dart';
 import 'screens/projecao_screen.dart';
 import 'screens/viveiro_form_screen.dart';
 import 'screens/viveiro_painel_screen.dart';
@@ -16,7 +17,7 @@ import 'state/app_state.dart';
 
 final GoRouter _router = GoRouter(
   routes: [
-    // Abas principais (rodapé): Início e Projeção.
+    // Abas principais (rodapé): Início, Projeção e Maré.
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           _AppShell(navigationShell: navigationShell),
@@ -27,6 +28,11 @@ final GoRouter _router = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(path: '/projecao', builder: (_, __) => const ProjecaoScreen()),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(path: '/mare', builder: (_, __) => const MareScreen()),
           ],
         ),
       ],
@@ -90,6 +96,8 @@ class _AppShell extends StatelessWidget {
               icon: Icon(Icons.home), label: 'Início'),
           NavigationDestination(
               icon: Icon(Icons.calendar_month), label: 'Projeção'),
+          NavigationDestination(
+              icon: Icon(Icons.waves), label: 'Maré'),
         ],
       ),
     );
