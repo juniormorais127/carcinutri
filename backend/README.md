@@ -74,7 +74,34 @@ curl -X POST http://localhost:8000/auth/login \
 
 # Quem sou eu (Bearer token)
 curl http://localhost:8000/auth/me -H "Authorization: Bearer SEU_TOKEN"
+
+# Verificação de e-mail e recuperação de senha
+# Confirmar e-mail (link enviado por e-mail / impresso no console em modo dev)
+curl "http://localhost:8000/auth/verificar-email?token=SEU_TOKEN"
+
+# Reenviar confirmação
+curl -X POST http://localhost:8000/auth/reenviar-verificacao \
+  -H 'Content-Type: application/json' -d '{"email":"a@b.com"}'
+
+# Esqueci a senha (envia link de recuperação)
+curl -X POST http://localhost:8000/auth/esqueci-senha \
+  -H 'Content-Type: application/json' -d '{"email":"a@b.com"}'
+
+# Redefinir senha com o token recebido
+curl -X POST http://localhost:8000/auth/redefinir-senha \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"SEU_TOKEN","nova_senha":"nova12345"}'
 ```
+
+## E-mail (verificação + recuperação)
+
+O envio usa a **API da Resend**. Configure no `.env`:
+- `RESEND_API_KEY`: sua chave da Resend (plano gratuito).
+- `EMAIL_FROM`: remetente (para testar sem domínio, use `onboarding@resend.dev`).
+- `PUBLIC_BASE_URL`: base dos links nos e-mails (ex.: `http://localhost:8000`).
+
+**Sem `RESEND_API_KEY`** o backend entra em **modo dev**: os links não são
+enviados, são impressos no console do uvicorn — útil para testar o fluxo local.
 
 ## Rodar Alembic no host (fora do Docker)
 
@@ -88,6 +115,7 @@ alembic upgrade head
 Copie `.env.example` para `.env` e ajuste. O `.env` é ignorado pelo git.
 - `DATABASE_URL` dentro do container usa `@db:5432`; no host usa `@localhost:5432`.
 - `JWT_SECRET`: troque por uma chave longa e aleatória em produção.
+- `RESEND_API_KEY`/`EMAIL_FROM`/`PUBLIC_BASE_URL`: e-mail (ver seção acima).
 
 ## Estrutura
 
