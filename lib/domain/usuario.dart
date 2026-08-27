@@ -25,6 +25,7 @@ class UsuarioLogado {
   final String? cidade;
   final String? regiao;
   final PerfilUsuario perfil;
+  final bool emailVerificado;
 
   const UsuarioLogado({
     required this.id,
@@ -34,6 +35,7 @@ class UsuarioLogado {
     this.cidade,
     this.regiao,
     required this.perfil,
+    this.emailVerificado = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +46,7 @@ class UsuarioLogado {
         'cidade': cidade,
         'regiao': regiao,
         'role': perfil.name,
+        'email_verificado': emailVerificado,
       };
 
   factory UsuarioLogado.fromJson(Map<String, dynamic> j) => UsuarioLogado(
@@ -54,5 +57,18 @@ class UsuarioLogado {
         cidade: j['cidade'] as String?,
         regiao: j['regiao'] as String?,
         perfil: PerfilUsuario.daString(j['role'] as String?),
+        // Default true: sessões offline já salvas não "cobram" confirmação.
+        emailVerificado: (j['email_verificado'] as bool?) ?? true,
+      );
+
+  UsuarioLogado copiar({bool? emailVerificado}) => UsuarioLogado(
+        id: id,
+        email: email,
+        nome: nome,
+        telefone: telefone,
+        cidade: cidade,
+        regiao: regiao,
+        perfil: perfil,
+        emailVerificado: emailVerificado ?? this.emailVerificado,
       );
 }

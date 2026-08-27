@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _pesoAlvo = TextEditingController(text: '20');
   final _precoKg = TextEditingController(text: '30');
+  bool _reenviando = false;
 
   @override
   void dispose() {
@@ -77,6 +78,85 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Aviso exibido quando a conta ainda não confirmou o e-mail.
+  Widget _bannerVerificacao(BuildContext context) {
+    final cores = Theme.of(context).colorScheme;
+    final auth = context.read<AuthState>();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: cores.tertiaryContainer.withOpacity(0.55),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cores.tertiary.withOpacity(0.4)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.mark_email_unread_outlined,
+                    color: cores.onTertiaryContainer),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Confirme seu e-mail para desbloquear tudo.',
+                    style: TextStyle(
+                        color: cores.onTertiaryContainer,
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: _reenviando
+                      ? null
+                      : () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          setState(() => _reenviando = true);
+                          try {
+                            await auth.reenviarVerificacao();
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Confirmação enviada. Confira seu e-mail.')),
+                            );
+                          } catch (_) {
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                  content: Text('Não foi possível reenviar.')),
+                            );
+                          } finally {
+                            if (mounted) setState(() => _reenviando = false);
+                          }
+                        },
+                  icon: _reenviando
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send_outlined, size: 18),
+                  label: const Text('Reenviar'),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () => auth.marcarEmailVerificado(),
+                  icon: const Icon(Icons.check_circle_outline, size: 18),
+                  label: const Text('Já confirmei'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
@@ -111,6 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: ResponsiveListView(
         children: [
+          if (context.watch<AuthState>().usuario?.emailVerificado == false)
+            _bannerVerificacao(context),
           _boasVindas(context, state.viveiros.length),
           const SizedBox(height: 16),
           _cardResumo(context, geral),

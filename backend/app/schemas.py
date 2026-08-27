@@ -29,7 +29,19 @@ class UserOut(BaseModel):
     regiao: Optional[str] = None
     role: RoleEnum
     perfil: Optional[dict[str, Any]] = None
+    email_verificado: bool = False
     criado_em: datetime
+
+
+class EmailRequest(BaseModel):
+    """Usado em /reenviar-verificacao e /esqueci-senha."""
+
+    email: EmailStr
+
+
+class RedefinirSenha(BaseModel):
+    token: str
+    nova_senha: str = Field(min_length=6)
 
 
 class UserLogin(BaseModel):

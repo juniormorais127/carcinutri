@@ -121,7 +121,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         : const Text('Entrar'),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _carregando
+                          ? null
+                          : () => context.go('/esqueci-senha'),
+                      child: const Text('Esqueceu sua senha?'),
+                    ),
+                  ),
                   TextButton(
                     onPressed: _carregando ? null : () => context.go('/registro'),
                     child: const Text('Criar uma conta'),

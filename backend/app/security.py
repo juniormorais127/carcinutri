@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
@@ -7,6 +8,11 @@ from .config import settings
 
 # bcrypt fixado em 4.0.1 (requirements) para evitar incompatibilidade com passlib.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def criar_token() -> str:
+    """Token aleatório único para verificação de e-mail / redefinição de senha."""
+    return secrets.token_urlsafe(32)
 
 
 def hash_senha(senha: str) -> str:

@@ -4,6 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     Column,
     Date,
     DateTime,
@@ -52,6 +53,11 @@ class User(Base):
     role = Column(Enum(RoleEnum, name="user_role", native_enum=True), nullable=False)
     # Campos específicos de perfil (stub livre, evolui sem migração nesta etapa).
     perfil = Column(JSONB)
+    # Verificação de e-mail + recuperação de senha.
+    email_verificado = Column(Boolean, nullable=False, default=False)
+    token_verificacao = Column(String(64))
+    token_reset = Column(String(64))
+    token_reset_expira = Column(DateTime(timezone=True))
     criado_em = _criado_em()
 
 

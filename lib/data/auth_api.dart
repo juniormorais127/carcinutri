@@ -96,6 +96,36 @@ class AuthApi {
     return UsuarioLogado.fromJson(j.cast<String, dynamic>());
   }
 
+  /// Reenvia o e-mail de confirmação de conta.
+  Future<void> reenviarVerificacao({required String email}) =>
+      _postJson('/auth/reenviar-verificacao', {'email': email});
+
+  /// Envia o link de recuperação de senha ("esqueci minha senha").
+  Future<void> esqueciSenha({required String email}) =>
+      _postJson('/auth/esqueci-senha', {'email': email});
+
+  /// Redefine a senha usando o token recebido por e-mail.
+  Future<void> redefinirSenha({
+    required String token,
+    required String novaSenha,
+  }) =>
+      _postJson('/auth/redefinir-senha', {
+        'token': token,
+        'nova_senha': novaSenha,
+      });
+
+  Future<void> _postJson(String caminho, Map<String, dynamic> body) async {
+    final r = await _http.post(
+      Uri.parse('$base$caminho'),
+      headers: _headers,
+      body: jsonEncode(body),
+    );
+    final j = _decodificar(r);
+    if (r.statusCode < 200 || r.statusCode >= 300) {
+      throw AuthException(_mensagemErro(j, r));
+    }
+  }
+
   Map<String, dynamic> _decodificar(http.Response r) {
     if (r.body.isEmpty) return {};
     try {

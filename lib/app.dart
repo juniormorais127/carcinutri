@@ -7,11 +7,13 @@ import 'screens/biometria_form_screen.dart';
 import 'screens/calculo_screen.dart';
 import 'screens/calculadoras_screen.dart';
 import 'screens/crescimento_screen.dart';
+import 'screens/esqueci_senha_screen.dart';
 import 'screens/historico_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/mare_screen.dart';
 import 'screens/projecao_screen.dart';
+import 'screens/redefinir_senha_screen.dart';
 import 'screens/registro_screen.dart';
 import 'screens/viveiro_form_screen.dart';
 import 'screens/viveiro_painel_screen.dart';
@@ -340,16 +342,20 @@ GoRouter _criarRouter(AuthState auth) {
     // Autenticação.
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(path: '/registro', builder: (_, __) => const RegistroScreen()),
+    GoRoute(path: '/esqueci-senha', builder: (_, __) => const EsqueciSenhaScreen()),
+    GoRoute(
+        path: '/redefinir-senha', builder: (_, __) => const RedefinirSenhaScreen()),
   ];
 
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
       final autenticado = auth.autenticado;
-      final emLogin = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/registro';
-      if (!autenticado && !emLogin) return '/login';
-      if (autenticado && emLogin) return '/';
+      // Rotas acessíveis mesmo sem login (entrada + recuperação).
+      const publicas = {'/login', '/registro', '/esqueci-senha', '/redefinir-senha'};
+      final emPublica = publicas.contains(state.matchedLocation);
+      if (!autenticado && !emPublica) return '/login';
+      if (autenticado && emPublica) return '/';
       return null;
     },
     routes: rotas,

@@ -67,6 +67,31 @@ class AuthState extends ChangeNotifier {
     await _salvarSessao(r.token, r.usuario);
   }
 
+  /// Reenvia o e-mail de confirmação para o usuário atual.
+  Future<void> reenviarVerificacao() async {
+    final email = _usuario?.email;
+    if (email == null) return;
+    await _api.reenviarVerificacao(email: email);
+  }
+
+  /// Solicita o link de recuperação de senha para um e-mail.
+  Future<void> esqueciSenha({required String email}) =>
+      _api.esqueciSenha(email: email);
+
+  /// Redefine a senha com o token recebido por e-mail.
+  Future<void> redefinirSenha({
+    required String token,
+    required String novaSenha,
+  }) =>
+      _api.redefinirSenha(token: token, novaSenha: novaSenha);
+
+  /// Marca localmente o e-mail como verificado (após "Já confirmei").
+  Future<void> marcarEmailVerificado() async {
+    final u = _usuario;
+    if (u == null || u.emailVerificado) return;
+    await _salvarSessao(_token!, u.copiar(emailVerificado: true));
+  }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_chaveToken);
