@@ -198,6 +198,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _cardResumo(context, geral),
           const SizedBox(height: 16),
           _cardCalculadoras(context),
+          const SizedBox(height: 12),
+          _cardServicos(context),
           const SizedBox(height: 24),
           Row(
             children: [
@@ -371,6 +373,63 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 4),
                     Text(
                         '12 ferramentas de carcinicultura disponíveis offline'),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_rounded),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _cardServicos(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final auth = context.watch<AuthState>();
+    final isProdutor =
+        (auth.usuario?.perfil ?? PerfilUsuario.produtor) == PerfilUsuario.produtor;
+
+    return Card(
+      color: colorScheme.secondaryContainer.withOpacity(0.45),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => context.push('/servicos'),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(
+                  isProdutor ? Icons.handshake_rounded : Icons.storefront_rounded,
+                  color: colorScheme.onSecondary,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isProdutor ? 'Serviços e Contratos' : 'Mercado de Serviços',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isProdutor
+                          ? 'Encontre técnicos, solicite propostas e contrate com custódia'
+                          : 'Confira oportunidades abertas e envie propostas para produtores',
+                    ),
                   ],
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../db/app_database.dart';
 import '../db/repositories.dart';
 import '../domain/modelos.dart';
+import '../domain/servico.dart';
 
 /// Estado global do app: viveiros + histórico de cálculos, tudo local.
 class AppState extends ChangeNotifier {
@@ -12,7 +13,8 @@ class AppState extends ChangeNotifier {
         biometriasRepo = BiometriaRepositorio(db.db, db.biometrias),
         qualidadeAguaRepo =
             QualidadeAguaRepositorio(db.db, db.qualidadeAgua),
-        mareRepo = MareRepositorio(db.db, db.mare);
+        mareRepo = MareRepositorio(db.db, db.mare),
+        solicitacoesRepo = SolicitacaoRepositorio(db.db, db.solicitacoes);
 
   final AppDatabase db;
   final ViveiroRepositorio viveirosRepo;
@@ -20,15 +22,19 @@ class AppState extends ChangeNotifier {
   final BiometriaRepositorio biometriasRepo;
   final QualidadeAguaRepositorio qualidadeAguaRepo;
   final MareRepositorio mareRepo;
+  final SolicitacaoRepositorio solicitacoesRepo;
 
   List<Viveiro> _viveiros = [];
   List<Calculo> _calculos = [];
   List<Biometria> _biometrias = [];
   List<QualidadeAgua> _qualidadeAgua = [];
+  List<SolicitacaoServico> _solicitacoes = [];
   bool _carregado = false;
 
   List<Viveiro> get viveiros => List.unmodifiable(_viveiros);
   List<Calculo> get calculos => List.unmodifiable(_calculos);
+  List<SolicitacaoServico> get solicitacoes =>
+      List.unmodifiable(_solicitacoes);
   bool get carregado => _carregado;
 
   Future<void> carregar() async {
@@ -36,7 +42,20 @@ class AppState extends ChangeNotifier {
     _calculos = await calculosRepo.listar();
     _biometrias = await biometriasRepo.listar();
     _qualidadeAgua = await qualidadeAguaRepo.listar();
+    _solicitacoes = await solicitacoesRepo.listar();
     _carregado = true;
+    notifyListeners();
+  }
+
+  Future<void> salvarSolicitacao(SolicitacaoServico s) async {
+    await solicitacoesRepo.salvar(s);
+    _solicitacoes = await solicitacoesRepo.listar();
+    notifyListeners();
+  }
+
+  Future<void> removerSolicitacao(String id) async {
+    await solicitacoesRepo.remover(id);
+    _solicitacoes = await solicitacoesRepo.listar();
     notifyListeners();
   }
 

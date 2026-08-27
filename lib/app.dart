@@ -2,23 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'data/servicos_api.dart';
 import 'screens/arracoamento_recomendado_screen.dart';
 import 'screens/biometria_form_screen.dart';
 import 'screens/calculo_screen.dart';
 import 'screens/calculadoras_screen.dart';
+import 'screens/chat_screen.dart';
+import 'screens/contrato_screen.dart';
 import 'screens/crescimento_screen.dart';
+import 'screens/criar_servico_screen.dart';
 import 'screens/esqueci_senha_screen.dart';
 import 'screens/historico_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/mare_screen.dart';
+import 'screens/meu_servico_screen.dart';
 import 'screens/projecao_screen.dart';
 import 'screens/redefinir_senha_screen.dart';
 import 'screens/registro_screen.dart';
+import 'screens/servico_detalhe_screen.dart';
+import 'screens/servicos_screen.dart';
 import 'screens/viveiro_form_screen.dart';
 import 'screens/viveiro_painel_screen.dart';
 import 'state/app_state.dart';
 import 'state/auth_state.dart';
+import 'state/servicos_state.dart';
 import 'state/sync_service.dart';
 import 'widgets/brand_watermark.dart';
 
@@ -224,11 +232,13 @@ class CarciniApp extends StatefulWidget {
   final AppState state;
   final AuthState auth;
   final SyncService sync;
+  final MercadoState? mercado;
   const CarciniApp({
     super.key,
     required this.state,
     required this.auth,
     required this.sync,
+    this.mercado,
   });
 
   @override
@@ -237,10 +247,12 @@ class CarciniApp extends StatefulWidget {
 
 class _CarciniAppState extends State<CarciniApp> {
   late final GoRouter _router;
+  late final MercadoState _mercado;
 
   @override
   void initState() {
     super.initState();
+    _mercado = widget.mercado ?? MercadoState(api: ServicosApi(), auth: widget.auth);
     _router = _criarRouter(widget.auth);
     // Reavalia o redirect e sincroniza quando o estado de login muda.
     widget.auth.addListener(_aoMudarAuth);
@@ -256,6 +268,7 @@ class _CarciniAppState extends State<CarciniApp> {
     _router.refresh();
     if (widget.auth.autenticado) {
       widget.sync.sincronizar();
+      _mercado.carregarTudo();
     }
   }
 
@@ -265,6 +278,7 @@ class _CarciniAppState extends State<CarciniApp> {
       providers: [
         ChangeNotifierProvider.value(value: widget.state),
         ChangeNotifierProvider.value(value: widget.auth),
+        ChangeNotifierProvider.value(value: _mercado),
       ],
       child: MaterialApp.router(
         title: 'CARCINUTRI',
@@ -339,6 +353,27 @@ GoRouter _criarRouter(AuthState auth) {
     GoRoute(
         path: '/historico/:id',
         builder: (_, s) => HistoricoScreen(id: s.pathParameters['id'])),
+    // Marketplace de serviços, contratos e chat.
+    GoRoute(path: '/servicos', builder: (_, __) => const ServicosScreen()),
+    GoRoute(
+        path: '/servicos/novo',
+        builder: (_, __) => const CriarServicoScreen()),
+    GoRoute(
+        path: '/servicos/:id',
+        builder: (_, s) =>
+            ServicoDetalheScreen(id: s.pathParameters['id']!)),
+    GoRoute(
+        path: '/servicos/meu/:id',
+        builder: (_, s) =>
+            MeuServicoScreen(id: s.pathParameters['id']!)),
+    GoRoute(
+        path: '/contrato/:id',
+        builder: (_, s) =>
+            ContratoScreen(id: s.pathParameters['id']!)),
+    GoRoute(
+        path: '/chat/:id',
+        builder: (_, s) =>
+            ChatScreen(contratoId: s.pathParameters['id']!)),
     // Autenticação.
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(path: '/registro', builder: (_, __) => const RegistroScreen()),

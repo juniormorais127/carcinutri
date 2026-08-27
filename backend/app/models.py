@@ -32,6 +32,34 @@ class RoleEnum(str, enum.Enum):
     tecnico = "tecnico"
 
 
+class SolicitacaoStatus(str, enum.Enum):
+    aberto = "aberto"
+    aceito = "aceito"
+    cancelado = "cancelado"
+
+
+class PropostaStatus(str, enum.Enum):
+    pendente = "pendente"
+    aceita = "aceita"
+    recusada = "recusada"
+    retirada = "retirada"
+
+
+class PagamentoStatus(str, enum.Enum):
+    aguardando = "aguardando"
+    pago = "pago"
+    repassado = "repassado"
+    restituido = "restituido"
+
+
+class ExecucaoStatus(str, enum.Enum):
+    aguardando_pagamento = "aguardando_pagamento"
+    em_andamento = "em_andamento"
+    aguardando_aprovacao = "aguardando_aprovacao"
+    concluido = "concluido"
+    cancelado = "cancelado"
+
+
 def _pk() -> Column:
     return Column(UUID(as_uuid=True), primary_key=True, default=_uuid)
 
@@ -162,3 +190,74 @@ class VisitaTecnica(Base):
 # Índices compostos úteis para as consultas por dono + viveiro.
 Index("ix_biometrias_viveiro_data", Biometria.viveiro_id, Biometria.data)
 Index("ix_qualidade_viveiro_data", QualidadeAgua.viveiro_id, QualidadeAgua.data)
+
+
+class ServicoSolicitacao(Base):
+    """Solicitação de serviço criada pelo produtor, visível aos técnicos."""
+
+    __tablename__ = "servicos_solicitacoes"
+
+    id = _pk()
+    produtor_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    titulo = Column(String(160), nullable=False)
+    descricao = Column(Text)
+    categoria = Column(String(60))
+    cidade = Column(String(120))
+    valor_estimado = Column(Numeric(12, 2), nullable=False)
+    status = Column(Enum(SolicitacaoStatus, name="solicitacao_status", native_enum=True), nullable=False, default=SolicitacaoStatus.aberto)
+    criado_em = _criado_em()
+
+    produtor = relationship("User")
+
+
+class ServicoProposta(Base):
+    """Contraproposta de um técnico para uma solicitação."""
+
+    __tablename__ = "servicos_propostas"
+
+    id = _pk()
+    servico_id = Column(UUID(as_uuid=True), ForeignKey("servicos_solicitacoes.id", ondelete="CASCADE"), nullable=False, index=True)
+    tecnico_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    valor = Column(Numeric(12, 2), nullable=False)
+    mensagem = Column(Text)
+    status = Column(Enum(PropostaStatus, name="proposta_status", native_enum=True), nullable=False, default=PropostaStatus.pendente)
+    criado_em = _criado_em()
+
+    servico = relationship("ServicoSolicitacao")
+    tecnico = relationship("User")
+
+
+class ContratoServico(Base):
+    """Acordo aceito (produtor aceitou uma proposta) + custódia (escrow) do valor."""
+
+    __tablename__ = "servicos_contratos"
+
+    id = _pk()
+    servico_id = Column(UUID(as_uuid=True), ForeignKey("servicos_solicitacoes.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    proposta_id = Column(UUID(as_uuid=True), ForeignKey("servicos_propostas.id", ondelete="SET NULL"))
+    produtor_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    tecnico_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    valor_acordado = Column(Numeric(12, 2), nullable=False)
+    pagamento = Column(Enum(PagamentoStatus, name="pagamento_status", native_enum=True), nullable=False, default=PagamentoStatus.aguardando)
+    execucao = Column(Enum(ExecucaoStatus, name="execucao_status", native_enum=True), nullable=False, default=ExecucaoStatus.aguardando_pagamento)
+    criado_em = _criado_em()
+
+    servico = relationship("ServicoSolicitacao")
+    proposta = relationship("ServicoProposta")
+    produtor = relationship("User", foreign_keys=[produtor_id])
+    tecnico = relationship("User", foreign_keys=[tecnico_id])
+
+
+class ServicoMensagem(Base):
+    """Mensagem do chat entre produtor e técnico — liberado após o pagamento."""
+
+    __tablename__ = "servicos_mensagens"
+
+    id = _pk()
+    contrato_id = Column(UUID(as_uuid=True), ForeignKey("servicos_contratos.id", ondelete="CASCADE"), nullable=False, index=True)
+    remetente_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    texto = Column(Text, nullable=False)
+    criado_em = _criado_em()
+
+    contrato = relationship("ContratoServico")
+    remetente = relationship("User")

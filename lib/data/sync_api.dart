@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../domain/modelos.dart';
+import '../domain/servico.dart';
 import 'api_config.dart';
 
 /// Cliente HTTP dos endpoints de sync (offline-first) da API CARCINUTRI.
@@ -99,6 +100,24 @@ class SyncApi {
                   'entradas': c.entradas,
                   'resultado': c.resultado,
                   'criado_em': c.criadoEm.toIso8601String(),
+                })
+            .toList(),
+      );
+
+  Future<void> solicitacoes(String token, List<SolicitacaoServico> itens) =>
+      _enviar(
+        'servicos',
+        token,
+        itens
+            .map((s) => {
+                  'id': s.id,
+                  'titulo': s.titulo,
+                  'descricao': s.descricao,
+                  'categoria': s.categoria,
+                  'cidade': s.cidade,
+                  'valor_estimado': s.valorEstimado,
+                  'status': s.status,
+                  'criado_em': s.criadoEm.toIso8601String(),
                 })
             .toList(),
       );

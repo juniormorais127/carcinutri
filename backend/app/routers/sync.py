@@ -9,6 +9,7 @@ from ..models import (
     Biometria,
     Calculo,
     QualidadeAgua,
+    ServicoSolicitacao,
     User,
     Viveiro,
 )
@@ -17,6 +18,7 @@ from ..schemas import (
     CalculoSync,
     QualidadeAguaSync,
     ResultadoSync,
+    ServicoSync,
     ViveiroSync,
 )
 
@@ -85,3 +87,28 @@ def sync_calculos(
 ):
     n = _upsert_list(db, Calculo, itens, usuario.id)
     return ResultadoSync(recebidos=len(itens), sincronizados=n)
+
+
+@router.post("/servicos", response_model=ResultadoSync)
+def sync_servicos(
+    itens: list[ServicoSync],
+    usuario: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Sincroniza solicitações criadas offline pelo produtor."""
+    contagem = 0
+    for item in itens:
+        data = item.model_dump(exclude_unset=True)
+        ident = data.pop("id")
+        data.pop("criado_em", None)
+
+        existente = db.get(ServicoSolicitacao, ident)
+        if existente is not None and existente.produtor_id == usuario.id:
+            for campo, valor in data.items():
+                setattr(existente, campo, valor)
+        elif existente is None:
+            db.add(ServicoSolicitacao(id=ident, produtor_id=usuario.id, **data))
+        contagem += 1
+    db.commit()
+    return ResultadoSync(recebidos=len(itens), sincronizados=contagem)
+

@@ -4,7 +4,13 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from .models import RoleEnum
+from .models import (
+    ExecucaoStatus,
+    PagamentoStatus,
+    PropostaStatus,
+    RoleEnum,
+    SolicitacaoStatus,
+)
 
 
 class UserCreate(BaseModel):
@@ -107,3 +113,92 @@ class CalculoSync(BaseModel):
 class ResultadoSync(BaseModel):
     recebidos: int
     sincronizados: int
+
+
+# ---------------------------------------------------------------------------
+# Marketplace de serviços (produtor ↔ técnico) com custódia
+# ---------------------------------------------------------------------------
+
+
+class ServicoSolicitacaoCreate(BaseModel):
+    titulo: str = Field(min_length=3, max_length=160)
+    descricao: Optional[str] = None
+    categoria: Optional[str] = None
+    cidade: Optional[str] = None
+    valor_estimado: float
+
+
+class ServicoOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    produtor_id: UUID
+    produtor_nome: str
+    titulo: str
+    descricao: Optional[str] = None
+    categoria: Optional[str] = None
+    cidade: Optional[str] = None
+    valor_estimado: float
+    status: SolicitacaoStatus
+    criado_em: datetime
+
+
+class ServicoSync(BaseModel):
+    id: UUID
+    titulo: str
+    descricao: Optional[str] = None
+    categoria: Optional[str] = None
+    cidade: Optional[str] = None
+    valor_estimado: float
+    status: SolicitacaoStatus = SolicitacaoStatus.aberto
+    criado_em: Optional[datetime] = None
+
+
+class PropostaCreate(BaseModel):
+    valor: float
+    mensagem: Optional[str] = None
+
+
+class PropostaOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    servico_id: UUID
+    tecnico_id: UUID
+    tecnico_nome: str
+    valor: float
+    mensagem: Optional[str] = None
+    status: PropostaStatus
+    criado_em: datetime
+
+
+class ContratoOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    servico_id: UUID
+    servico_titulo: str
+    produtor_id: UUID
+    produtor_nome: str
+    tecnico_id: UUID
+    tecnico_nome: str
+    valor_acordado: float
+    pagamento: PagamentoStatus
+    execucao: ExecucaoStatus
+    comunicacao_liberada: bool = False
+    criado_em: datetime
+
+
+class MensagemCreate(BaseModel):
+    texto: str = Field(min_length=1, max_length=2000)
+
+
+class MensagemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    contrato_id: UUID
+    remetente_id: UUID
+    remetente_nome: str
+    texto: str
+    criado_em: datetime

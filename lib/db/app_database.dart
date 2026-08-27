@@ -42,4 +42,7 @@ class AppDatabase {
 
   StoreRef<String, Object?> get mare =>
       stringMapStoreFactory.store('mare');
+
+  StoreRef<String, Object?> get solicitacoes =>
+      stringMapStoreFactory.store('solicitacoes');
 }

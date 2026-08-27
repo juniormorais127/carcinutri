@@ -1,6 +1,7 @@
 import 'package:sembast/sembast.dart';
 
 import '../domain/modelos.dart';
+import '../domain/servico.dart';
 
 /// Acesso aos viveiros no banco local.
 class ViveiroRepositorio {
@@ -180,3 +181,40 @@ class MareRepositorio {
     await _store.record(chave).delete(_db);
   }
 }
+
+/// Acesso às solicitações de serviços no banco local (rascunho offline-first).
+class SolicitacaoRepositorio {
+  final Database _db;
+  final StoreRef<String, Object?> _store;
+  SolicitacaoRepositorio(this._db, this._store);
+
+  Future<List<SolicitacaoServico>> listar() async {
+    final registros = await _store.find(_db);
+    final s = registros
+        .map((r) => SolicitacaoServico.fromJson(
+            Map<String, Object?>.from(r.value as Map)))
+        .toList();
+    s.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+    return s;
+  }
+
+  Future<List<SolicitacaoServico>> listarPendentes() async {
+    final registros = await _store.find(
+      _db,
+      finder: Finder(filter: Filter.equals('sincronizado', false)),
+    );
+    return registros
+        .map((r) => SolicitacaoServico.fromJson(
+            Map<String, Object?>.from(r.value as Map)))
+        .toList();
+  }
+
+  Future<void> salvar(SolicitacaoServico s) async {
+    await _store.record(s.id).put(_db, s.toJson());
+  }
+
+  Future<void> remover(String id) async {
+    await _store.record(id).delete(_db);
+  }
+}
+

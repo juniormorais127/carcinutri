@@ -37,11 +37,14 @@ class SyncService {
       final pendentesQualidade =
           await _app.qualidadeAguaRepo.listarPendentes();
       final pendentesCalculos = await _app.calculosRepo.listarPendentes();
+      final pendentesSolicitacoes =
+          await _app.solicitacoesRepo.listarPendentes();
 
       await _api.viveiros(token, pendentesViveiros);
       await _api.biometrias(token, pendentesBiometrias);
       await _api.qualidadeAgua(token, pendentesQualidade);
       await _api.calculos(token, pendentesCalculos);
+      await _api.solicitacoes(token, pendentesSolicitacoes);
 
       // Só marca como sincronizado se os lotes foram aceitos pelo servidor.
       for (final v in pendentesViveiros) {
@@ -55,6 +58,9 @@ class SyncService {
       }
       for (final c in pendentesCalculos) {
         await _app.calculosRepo.salvar(c.marcadoSincronizado());
+      }
+      for (final s in pendentesSolicitacoes) {
+        await _app.solicitacoesRepo.salvar(s.marcadoSincronizado());
       }
 
       await _app.carregar();
