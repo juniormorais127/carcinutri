@@ -159,6 +159,9 @@ class ContratoServico {
   final String pagamento; // 'aguardando', 'pago', 'repassado', 'restituido'
   final String execucao; // 'aguardando_pagamento', 'em_andamento', 'aguardando_aprovacao', 'concluido', 'cancelado'
   final bool comunicacaoLiberada;
+  final String? fotoVisita;
+  final String? fotoSolucao;
+  final String? descricaoSolucao;
   final DateTime criadoEm;
 
   ContratoServico({
@@ -173,6 +176,9 @@ class ContratoServico {
     required this.pagamento,
     required this.execucao,
     required this.comunicacaoLiberada,
+    this.fotoVisita,
+    this.fotoSolucao,
+    this.descricaoSolucao,
     required this.criadoEm,
   });
 
@@ -188,6 +194,9 @@ class ContratoServico {
         'pagamento': pagamento,
         'execucao': execucao,
         'comunicacao_liberada': comunicacaoLiberada,
+        'foto_visita': fotoVisita,
+        'foto_solucao': fotoSolucao,
+        'descricao_solucao': descricaoSolucao,
         'criado_em': criadoEm.toIso8601String(),
       };
 
@@ -203,6 +212,9 @@ class ContratoServico {
         pagamento: (json['pagamento'] as String?) ?? 'aguardando',
         execucao: (json['execucao'] as String?) ?? 'aguardando_pagamento',
         comunicacaoLiberada: (json['comunicacao_liberada'] as bool?) ?? false,
+        fotoVisita: json['foto_visita'] as String?,
+        fotoSolucao: json['foto_solucao'] as String?,
+        descricaoSolucao: json['descricao_solucao'] as String?,
         criadoEm: json['criado_em'] != null
             ? DateTime.parse(json['criado_em'] as String)
             : DateTime.now(),

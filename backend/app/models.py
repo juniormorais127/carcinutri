@@ -240,6 +240,9 @@ class ContratoServico(Base):
     valor_acordado = Column(Numeric(12, 2), nullable=False)
     pagamento = Column(Enum(PagamentoStatus, name="pagamento_status", native_enum=True), nullable=False, default=PagamentoStatus.aguardando)
     execucao = Column(Enum(ExecucaoStatus, name="execucao_status", native_enum=True), nullable=False, default=ExecucaoStatus.aguardando_pagamento)
+    foto_visita = Column(Text, nullable=True)
+    foto_solucao = Column(Text, nullable=True)
+    descricao_solucao = Column(Text, nullable=True)
     criado_em = _criado_em()
 
     servico = relationship("ServicoSolicitacao")

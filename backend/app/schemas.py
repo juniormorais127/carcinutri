@@ -186,7 +186,16 @@ class ContratoOut(BaseModel):
     pagamento: PagamentoStatus
     execucao: ExecucaoStatus
     comunicacao_liberada: bool = False
+    foto_visita: Optional[str] = None
+    foto_solucao: Optional[str] = None
+    descricao_solucao: Optional[str] = None
     criado_em: datetime
+
+
+class FinalizarServicoPayload(BaseModel):
+    foto_visita: Optional[str] = None
+    foto_solucao: Optional[str] = None
+    descricao_solucao: Optional[str] = None
 
 
 class MensagemCreate(BaseModel):

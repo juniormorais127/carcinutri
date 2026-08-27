@@ -162,9 +162,24 @@ class ServicosApi {
     return ContratoServico.fromJson(Map<String, Object?>.from(j));
   }
 
-  /// Finaliza serviço (técnico).
-  Future<ContratoServico> finalizarServico(String token, String contratoId) async {
-    final r = await _http.post(Uri.parse('$base/contratos/$contratoId/finalizar'), headers: _headers(token));
+  /// Finaliza serviço (técnico) anexando comprovação de visita técnica e solução.
+  Future<ContratoServico> finalizarServico(
+    String token,
+    String contratoId, {
+    String? fotoVisita,
+    String? fotoSolucao,
+    String? descricaoSolucao,
+  }) async {
+    final body = jsonEncode({
+      if (fotoVisita != null) 'foto_visita': fotoVisita,
+      if (fotoSolucao != null) 'foto_solucao': fotoSolucao,
+      if (descricaoSolucao != null) 'descricao_solucao': descricaoSolucao,
+    });
+    final r = await _http.post(
+      Uri.parse('$base/contratos/$contratoId/finalizar'),
+      headers: _headers(token),
+      body: body,
+    );
     final j = _decodificar(r);
     if (r.statusCode != 200) throw ServicosException(_mensagemErro(j, r));
 

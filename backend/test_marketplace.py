@@ -142,12 +142,23 @@ def run_tests():
     assert len(msgs) == 2
     print("[OK] Chat pos-pagamento (envio e listagem de mensagens)")
 
-    # 12. Técnico finaliza serviço
-    resp = client.post(f"/contratos/{contrato_id}/finalizar", headers=tecnico_headers)
+    # 12. Técnico finaliza serviço com comprovação fotográfica
+    resp = client.post(
+        f"/contratos/{contrato_id}/finalizar",
+        headers=tecnico_headers,
+        json={
+            "foto_visita": "data:image/jpeg;base64,visita123",
+            "foto_solucao": "data:image/jpeg;base64,solucao456",
+            "descricao_solucao": "Bomba consertada e operando normalmente.",
+        },
+    )
     assert resp.status_code == 200, resp.text
     contrato = resp.json()
     assert contrato["execucao"] == "aguardando_aprovacao"
-    print("[OK] Tecnico finalizou execucao")
+    assert contrato["foto_visita"] == "data:image/jpeg;base64,visita123"
+    assert contrato["foto_solucao"] == "data:image/jpeg;base64,solucao456"
+    assert contrato["descricao_solucao"] == "Bomba consertada e operando normalmente."
+    print("[OK] Tecnico finalizou execucao com comprovante fotografico")
 
     # 13. Produtor aprova serviço -> pagamento repassado e concluído
     resp = client.post(f"/contratos/{contrato_id}/aprovar", headers=produtor_headers)

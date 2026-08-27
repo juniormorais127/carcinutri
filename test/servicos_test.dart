@@ -59,7 +59,7 @@ void main() {
       expect(p2.status, 'pendente');
     });
 
-    test('ContratoServico toJson e fromJson', () {
+    test('ContratoServico toJson e fromJson com fotos de comprovante', () {
       final now = DateTime(2026, 8, 27, 11, 30);
       final c = ContratoServico(
         id: 'c-1',
@@ -71,8 +71,11 @@ void main() {
         tecnicoNome: 'Técnico Especialista',
         valorAcordado: 1100.00,
         pagamento: 'pago',
-        execucao: 'em_andamento',
+        execucao: 'aguardando_aprovacao',
         comunicacaoLiberada: true,
+        fotoVisita: 'data:image/jpeg;base64,abc123visita',
+        fotoSolucao: 'data:image/jpeg;base64,def456solucao',
+        descricaoSolucao: 'Bomba revisada com sucesso.',
         criadoEm: now,
       );
 
@@ -81,8 +84,11 @@ void main() {
       expect(c2.id, 'c-1');
       expect(c2.valorAcordado, 1100.00);
       expect(c2.pagamento, 'pago');
-      expect(c2.execucao, 'em_andamento');
+      expect(c2.execucao, 'aguardando_aprovacao');
       expect(c2.comunicacaoLiberada, true);
+      expect(c2.fotoVisita, 'data:image/jpeg;base64,abc123visita');
+      expect(c2.fotoSolucao, 'data:image/jpeg;base64,def456solucao');
+      expect(c2.descricaoSolucao, 'Bomba revisada com sucesso.');
     });
 
     test('MensagemServico toJson e fromJson', () {

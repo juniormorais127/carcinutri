@@ -1,11 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../domain/servico.dart';
 import '../state/auth_state.dart';
 import '../state/servicos_state.dart';
 import '../widgets/responsive_layout.dart';
+
+// Imagens demonstrativas codificadas em Base64 PNG para fins de demonstração imediata
+const _kDemoFotoVisita =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%231e293b"/><rect x="20" y="20" width="360" height="220" rx="12" fill="%23334155"/><circle cx="200" cy="110" r="45" fill="%23ef4444" opacity="0.2"/><path d="M185 95 L215 125 M215 95 L185 125" stroke="%23ef4444" stroke-width="6" stroke-linecap="round"/><text x="200" y="175" fill="%23f8fafc" font-size="15" font-weight="bold" font-family="sans-serif" text-anchor="middle">VISITA TÉCNICA: FALHA DETECTADA</text><text x="200" y="198" fill="%2394a3b8" font-size="12" font-family="sans-serif" text-anchor="middle">Inspeção no sistema de bombeamento do viveiro 02</text><rect x="30" y="30" width="100" height="24" rx="6" fill="%23ef4444"/><text x="80" y="46" fill="white" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">ANTES / VISITA</text></svg>';
+
+const _kDemoFotoSolucao =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%23064e3b"/><rect x="20" y="20" width="360" height="220" rx="12" fill="%23065f46"/><circle cx="200" cy="110" r="45" fill="%2310b981" opacity="0.2"/><path d="M180 110 L195 125 L225 95" stroke="%2310b981" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><text x="200" y="175" fill="%23f8fafc" font-size="15" font-weight="bold" font-family="sans-serif" text-anchor="middle">SOLUÇÃO APLICADA: TESTE OK</text><text x="200" y="198" fill="%236ee7b7" font-size="12" font-family="sans-serif" text-anchor="middle">Rotor substituído, vazão 120m³/h restabelecida</text><rect x="30" y="30" width="110" height="24" rx="6" fill="%2310b981"/><text x="85" y="46" fill="white" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">DEPOIS / SOLUÇÃO</text></svg>';
 
 class ContratoScreen extends StatefulWidget {
   final String id;
@@ -96,6 +106,233 @@ class _ContratoScreenState extends State<ContratoScreen> {
     }
   }
 
+  /// Abre diálogo para o técnico anexar fotos de comprovação da visita e solução.
+  Future<void> _abrirDialogFinalizacao(ContratoServico contrato) async {
+    String? fotoVisita = contrato.fotoVisita;
+    String? fotoSolucao = contrato.fotoSolucao;
+    final descCtrl = TextEditingController(text: contrato.descricaoSolucao ?? '');
+
+    final resultado = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final cores = Theme.of(context).colorScheme;
+          final picker = ImagePicker();
+
+          Future<void> escolherFoto(bool isVisita, ImageSource source) async {
+            try {
+              final picked = await picker.pickImage(
+                source: source,
+                maxWidth: 1200,
+                maxHeight: 1200,
+                imageQuality: 85,
+              );
+              if (picked != null) {
+                final bytes = await picked.readAsBytes();
+                final base64String = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+                setDialogState(() {
+                  if (isVisita) {
+                    fotoVisita = base64String;
+                  } else {
+                    fotoSolucao = base64String;
+                  }
+                });
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro ao selecionar imagem: $e')),
+                );
+              }
+            }
+          }
+
+          return AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.camera_alt_outlined),
+                SizedBox(width: 10),
+                Expanded(child: Text('Comprovante de Execução')),
+              ],
+            ),
+            content: SizedBox(
+              width: 520,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Anexe fotos comprovando a visita técnica e a solução do problema para avaliação e aprovação do produtor.',
+                      style: TextStyle(fontSize: 13, color: cores.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Campo 1: Foto da Visita / Diagnóstico (Antes)
+                    const Text(
+                      '1. Foto da Visita Técnica / Problema (Antes)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    if (fotoVisita != null) ...[
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: _RenderImagem(
+                              uriString: fotoVisita!,
+                              height: 140,
+                              width: double.infinity,
+                            ),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: IconButton.filled(
+                              icon: const Icon(Icons.close, size: 16),
+                              style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                              onPressed: () => setDialogState(() => fotoVisita = null),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () => escolherFoto(true, ImageSource.camera),
+                            icon: const Icon(Icons.photo_camera, size: 18),
+                            label: const Text('Câmera / Galeria'),
+                          ),
+                          FilledButton.tonalIcon(
+                            onPressed: () => setDialogState(() => fotoVisita = _kDemoFotoVisita),
+                            icon: const Icon(Icons.auto_awesome, size: 18),
+                            label: const Text('Usar Foto Demo (Visita)'),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    const SizedBox(height: 20),
+
+                    // Campo 2: Foto da Solução / Conclusão (Depois)
+                    const Text(
+                      '2. Foto da Solução do Problema (Depois)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    if (fotoSolucao != null) ...[
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: _RenderImagem(
+                              uriString: fotoSolucao!,
+                              height: 140,
+                              width: double.infinity,
+                            ),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: IconButton.filled(
+                              icon: const Icon(Icons.close, size: 16),
+                              style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                              onPressed: () => setDialogState(() => fotoSolucao = null),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () => escolherFoto(false, ImageSource.camera),
+                            icon: const Icon(Icons.photo_camera, size: 18),
+                            label: const Text('Câmera / Galeria'),
+                          ),
+                          FilledButton.tonalIcon(
+                            onPressed: () => setDialogState(() => fotoSolucao = _kDemoFotoSolucao),
+                            icon: const Icon(Icons.auto_awesome, size: 18),
+                            label: const Text('Usar Foto Demo (Solução)'),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    const SizedBox(height: 20),
+
+                    // Campo 3: Descrição técnica
+                    TextField(
+                      controller: descCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Relatório do Serviço / Observações Técnicas',
+                        hintText: 'Ex.: Realizada a troca do rotor e ajuste de vazão...',
+                        alignLabelWithHint: true,
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                icon: const Icon(Icons.check),
+                label: const Text('Finalizar e Enviar Comprovante'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (resultado != true || !mounted) return;
+
+    setState(() => _processando = true);
+    try {
+      final mercado = context.read<MercadoState>();
+      final desc = descCtrl.text.trim();
+      await mercado.finalizarServico(
+        contrato.id,
+        fotoVisita: fotoVisita,
+        fotoSolucao: fotoSolucao,
+        descricaoSolucao: desc.isEmpty ? null : desc,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Serviço finalizado com comprovante anexado! Aguardando aprovação do produtor.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _carregar();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao finalizar: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _processando = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
@@ -159,6 +396,8 @@ class _ContratoScreenState extends State<ContratoScreen> {
         statusLabel = 'Cancelado e Restituído';
         break;
     }
+
+    final temComprovante = c.fotoVisita != null || c.fotoSolucao != null || c.descricaoSolucao != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -278,6 +517,167 @@ class _ContratoScreenState extends State<ContratoScreen> {
             ),
             const SizedBox(height: 16),
 
+            // Card de Relatório Fotográfico & Comprovante de Visita / Solução
+            if (temComprovante || c.execucao == 'aguardando_aprovacao' || c.execucao == 'concluido') ...[
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.photo_library_outlined, color: cores.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Relatório Fotográfico & Comprovação',
+                              style: TextStyle(fontWeight: FontWeight.bold, color: cores.primary, fontSize: 15),
+                            ),
+                          ),
+                          if (c.execucao == 'aguardando_aprovacao')
+                            Chip(
+                              label: const Text('Para Aprovação'),
+                              backgroundColor: Colors.purple.withOpacity(0.15),
+                              labelStyle: const TextStyle(color: Colors.purple, fontSize: 11, fontWeight: FontWeight.bold),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (isProdutor && c.execucao == 'aguardando_aprovacao')
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: cores.surfaceVariant.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, size: 18, color: cores.primary),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Avalie as fotos da visita e da solução abaixo antes de aprovar a liberação do pagamento.',
+                                  style: TextStyle(fontSize: 12, color: cores.onSurfaceVariant),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Grid ou Colunas das Fotos
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isWide = constraints.maxWidth > 500;
+                          return Flex(
+                            direction: isWide ? Axis.horizontal : Axis.vertical,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Foto 1: Visita / Antes
+                              Expanded(
+                                flex: isWide ? 1 : 0,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '📸 1. Visita Técnica (Antes)',
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: cores.onSurface),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    if (c.fotoVisita != null)
+                                      InkWell(
+                                        onTap: () => _abrirZoomImagem(context, 'Visita Técnica (Antes)', c.fotoVisita!),
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: _RenderImagem(uriString: c.fotoVisita!, height: 160, width: double.infinity),
+                                        ),
+                                      )
+                                    else
+                                      Container(
+                                        height: 120,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: cores.surfaceVariant.withOpacity(0.3),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Center(
+                                          child: Text('Nenhuma foto anexada', style: TextStyle(fontSize: 12, color: cores.outline)),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (isWide) const SizedBox(width: 16) else const SizedBox(height: 16),
+                              // Foto 2: Solução / Depois
+                              Expanded(
+                                flex: isWide ? 1 : 0,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '✅ 2. Solução Concluída (Depois)',
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: cores.onSurface),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    if (c.fotoSolucao != null)
+                                      InkWell(
+                                        onTap: () => _abrirZoomImagem(context, 'Solução Concluída (Depois)', c.fotoSolucao!),
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: _RenderImagem(uriString: c.fotoSolucao!, height: 160, width: double.infinity),
+                                        ),
+                                      )
+                                    else
+                                      Container(
+                                        height: 120,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: cores.surfaceVariant.withOpacity(0.3),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Center(
+                                          child: Text('Nenhuma foto anexada', style: TextStyle(fontSize: 12, color: cores.outline)),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+
+                      if (c.descricaoSolucao != null && c.descricaoSolucao!.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          'Observações Técnicas do Executor:',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: cores.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: cores.surfaceVariant.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            c.descricaoSolucao!,
+                            style: TextStyle(fontSize: 13, color: cores.onSurface),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
             // Card de Chat / Comunicação
             Card(
               child: Padding(
@@ -342,17 +742,12 @@ class _ContratoScreenState extends State<ContratoScreen> {
                   label: const Text('Realizar Pagamento em Custódia (Simulado)'),
                 ),
 
-              // 2. Técnico finaliza (se em andamento)
+              // 2. Técnico finaliza (se em andamento) -> abre diálogo de anexar fotos e relatório
               if (isTecnico && c.execucao == 'em_andamento')
                 FilledButton.icon(
-                  onPressed: () => _executarAcao(
-                    'Finalizar Execução do Serviço',
-                    'Você confirma que finalizou a execução deste serviço?\n\n'
-                    'O produtor será notificado para conferir e aprovar o repasse do pagamento.',
-                    (m) => m.finalizarServico(c.id),
-                  ),
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text('Marcar Serviço como Finalizado'),
+                  onPressed: () => _abrirDialogFinalizacao(c),
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Finalizar Serviço e Inserir Comprovante'),
                 ),
 
               // 3. Produtor aprova ou rejeita (se aguardando aprovação)
@@ -360,7 +755,7 @@ class _ContratoScreenState extends State<ContratoScreen> {
                 FilledButton.icon(
                   onPressed: () => _executarAcao(
                     'Aprovar Serviço e Repassar Pagamento',
-                    'Você confirma que o serviço foi concluído satisfatoriamente?\n\n'
+                    'Você confirma que avaliou o relatório fotográfico e que o serviço foi concluído com sucesso?\n\n'
                     'O valor de R\$ ${c.valorAcordado.toStringAsFixed(2)} será repassado ao técnico ${c.tecnicoNome}.',
                     (m) => m.aprovarServico(c.id),
                   ),
@@ -384,6 +779,157 @@ class _ContratoScreenState extends State<ContratoScreen> {
             const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  void _abrirZoomImagem(BuildContext context, String titulo, String uriString) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+            ),
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              child: _RenderImagem(uriString: uriString, fit: BoxFit.contain),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget auxiliar para renderizar imagens de Data URI (Base64/SVG) ou URLs HTTP.
+class _RenderImagem extends StatelessWidget {
+  final String uriString;
+  final double? height;
+  final double? width;
+  final BoxFit fit;
+
+  const _RenderImagem({
+    required this.uriString,
+    this.height,
+    this.width,
+    this.fit = BoxFit.cover,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (uriString.startsWith('data:image/svg+xml')) {
+      final svgRaw = Uri.decodeComponent(uriString.split(',').last);
+      return Container(
+        height: height,
+        width: width,
+        alignment: Alignment.center,
+        color: const Color(0xFF0F172A),
+        child: _SvgViewer(svgContent: svgRaw, height: height, width: width),
+      );
+    } else if (uriString.startsWith('data:image')) {
+      try {
+        final base64String = uriString.split(',').last;
+        final bytes = base64Decode(base64String);
+        return Image.memory(bytes, height: height, width: width, fit: fit);
+      } catch (_) {
+        return Container(
+          height: height,
+          width: width,
+          color: Colors.grey[800],
+          child: const Icon(Icons.broken_image, color: Colors.white),
+        );
+      }
+    } else if (uriString.startsWith('http://') || uriString.startsWith('https://')) {
+      return Image.network(
+        uriString,
+        height: height,
+        width: width,
+        fit: fit,
+        errorBuilder: (_, __, ___) => Container(
+          height: height,
+          width: width,
+          color: Colors.grey[800],
+          child: const Icon(Icons.broken_image, color: Colors.white),
+        ),
+      );
+    }
+
+    return Container(
+      height: height,
+      width: width,
+      color: Colors.grey[800],
+      child: const Icon(Icons.image_not_supported, color: Colors.white),
+    );
+  }
+}
+
+class _SvgViewer extends StatelessWidget {
+  final String svgContent;
+  final double? height;
+  final double? width;
+
+  const _SvgViewer({
+    required this.svgContent,
+    this.height,
+    this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isVisita = svgContent.contains('VISITA TÉCNICA');
+
+    return Container(
+      height: height ?? 160,
+      width: width ?? double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isVisita ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isVisita ? Icons.warning_amber_rounded : Icons.check_circle_outline_rounded,
+            size: 44,
+            color: isVisita ? Colors.redAccent : Colors.greenAccent,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isVisita ? 'FALHA DETECTADA NA VISITA' : 'SOLUÇÃO CONCLUÍDA E TESTADA',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            isVisita
+                ? 'Inspeção no sistema de bombeamento do viveiro'
+                : 'Rotor reparado e vazão nominal restabelecida',
+            style: TextStyle(
+              color: isVisita ? Colors.white70 : Colors.greenAccent.withOpacity(0.8),
+              fontSize: 11,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

@@ -21,6 +21,7 @@ from ..models import (
 )
 from ..schemas import (
     ContratoOut,
+    FinalizarServicoPayload,
     MensagemCreate,
     MensagemOut,
     PropostaCreate,
@@ -74,6 +75,9 @@ def _contrato_out(c: ContratoServico) -> ContratoOut:
         pagamento=c.pagamento,
         execucao=c.execucao,
         comunicacao_liberada=liberada,
+        foto_visita=c.foto_visita,
+        foto_solucao=c.foto_solucao,
+        descricao_solucao=c.descricao_solucao,
         criado_em=c.criado_em,
     )
 
@@ -430,10 +434,11 @@ def pagar_contrato(
 @router.post("/contratos/{contrato_id}/finalizar", response_model=ContratoOut)
 def finalizar_servico(
     contrato_id: UUID,
+    payload: Optional[FinalizarServicoPayload] = None,
     usuario: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """O técnico marca a execução do serviço como concluída, aguardando aprovação do produtor."""
+    """O técnico marca a execução do serviço como concluída e anexa fotos de comprovação."""
     stmt = (
         select(ContratoServico)
         .options(
@@ -459,6 +464,14 @@ def finalizar_servico(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="O serviço não está em andamento",
         )
+
+    if payload:
+        if payload.foto_visita:
+            contrato.foto_visita = payload.foto_visita
+        if payload.foto_solucao:
+            contrato.foto_solucao = payload.foto_solucao
+        if payload.descricao_solucao:
+            contrato.descricao_solucao = payload.descricao_solucao
 
     contrato.execucao = ExecucaoStatus.aguardando_aprovacao
     db.commit()

@@ -181,10 +181,21 @@ class MercadoState extends ChangeNotifier {
     return c;
   }
 
-  Future<ContratoServico> finalizarServico(String contratoId) async {
+  Future<ContratoServico> finalizarServico(
+    String contratoId, {
+    String? fotoVisita,
+    String? fotoSolucao,
+    String? descricaoSolucao,
+  }) async {
     final token = _token;
     if (token == null) throw Exception('Não autenticado');
-    final c = await _api.finalizarServico(token, contratoId);
+    final c = await _api.finalizarServico(
+      token,
+      contratoId,
+      fotoVisita: fotoVisita,
+      fotoSolucao: fotoSolucao,
+      descricaoSolucao: descricaoSolucao,
+    );
     await carregarMeusContratos(silencioso: true);
     notifyListeners();
     return c;
