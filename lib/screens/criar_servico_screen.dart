@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../domain/servico.dart';
 import '../state/app_state.dart';
+import '../state/auth_state.dart';
+import '../state/servicos_state.dart';
 import '../state/sync_service.dart';
 import '../widgets/responsive_layout.dart';
 
@@ -50,31 +52,85 @@ class _CriarServicoScreenState extends State<CriarServicoScreen> {
     super.dispose();
   }
 
+  double? _parseValor(String? texto) {
+    if (texto == null) return null;
+    var s = texto.trim().replaceAll('R\$', '').replaceAll(' ', '');
+    if (s.isEmpty) return null;
+    if (s.contains('.') && s.contains(',')) {
+      s = s.replaceAll('.', '').replaceAll(',', '.');
+    } else if (s.contains(',')) {
+      s = s.replaceAll(',', '.');
+    }
+    return double.tryParse(s);
+  }
+
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
+    final valorEstimado = _parseValor(_valor.text);
+    if (valorEstimado == null || valorEstimado <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Informe um valor estimado válido.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
     setState(() => _salvando = true);
 
     try {
-      final valorEstimado = double.parse(_valor.text.trim().replaceAll(',', '.'));
-      final s = SolicitacaoServico(
-        id: gerarUuidV4(),
-        titulo: _titulo.text.trim(),
-        descricao: _descricao.text.trim().isEmpty ? null : _descricao.text.trim(),
-        categoria: _categoria,
-        cidade: _cidade.text.trim().isEmpty ? null : _cidade.text.trim(),
-        valorEstimado: valorEstimado,
-        status: 'aberto',
-        criadoEm: DateTime.now(),
-        sincronizado: false,
-      );
-
+      final auth = context.read<AuthState>();
       final app = context.read<AppState>();
-      await app.salvarSolicitacao(s);
+      final mercado = context.read<MercadoState>();
+
+      if (auth.autenticado) {
+        try {
+          // Criação online direta na API
+          final criada = await mercado.criarSolicitacao(
+            titulo: _titulo.text.trim(),
+            descricao: _descricao.text.trim().isEmpty ? null : _descricao.text.trim(),
+            categoria: _categoria,
+            cidade: _cidade.text.trim().isEmpty ? null : _cidade.text.trim(),
+            valorEstimado: valorEstimado,
+          );
+          // Salva cópia localmente já sincronizada
+          await app.salvarSolicitacao(criada.copiarCom(sincronizado: true));
+        } catch (_) {
+          // Fallback offline se a API falhar temporariamente
+          final s = SolicitacaoServico(
+            id: gerarUuidV4(),
+            produtorId: auth.usuario?.id,
+            produtorNome: auth.usuario?.nome ?? '',
+            titulo: _titulo.text.trim(),
+            descricao: _descricao.text.trim().isEmpty ? null : _descricao.text.trim(),
+            categoria: _categoria,
+            cidade: _cidade.text.trim().isEmpty ? null : _cidade.text.trim(),
+            valorEstimado: valorEstimado,
+            status: 'aberto',
+            criadoEm: DateTime.now(),
+            sincronizado: false,
+          );
+          await app.salvarSolicitacao(s);
+          if (mounted) context.read<SyncService>().sincronizar();
+        }
+      } else {
+        // Modo offline
+        final s = SolicitacaoServico(
+          id: gerarUuidV4(),
+          titulo: _titulo.text.trim(),
+          descricao: _descricao.text.trim().isEmpty ? null : _descricao.text.trim(),
+          categoria: _categoria,
+          cidade: _cidade.text.trim().isEmpty ? null : _cidade.text.trim(),
+          valorEstimado: valorEstimado,
+          status: 'aberto',
+          criadoEm: DateTime.now(),
+          sincronizado: false,
+        );
+        await app.salvarSolicitacao(s);
+      }
 
       if (mounted) {
-        // Dispara sync em segundo plano se houver conexão
-        context.read<SyncService>().sincronizar();
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Solicitação criada com sucesso!'),
@@ -174,7 +230,7 @@ class _CriarServicoScreenState extends State<CriarServicoScreen> {
               ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
-                final val = double.tryParse((v ?? '').replaceAll(',', '.'));
+                final val = _parseValor(v);
                 if (val == null || val <= 0) {
                   return 'Informe um valor estimado válido.';
                 }

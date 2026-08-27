@@ -110,6 +110,27 @@ class MercadoState extends ChangeNotifier {
     }
   }
 
+  Future<SolicitacaoServico> criarSolicitacao({
+    required String titulo,
+    String? descricao,
+    String? categoria,
+    String? cidade,
+    required double valorEstimado,
+  }) async {
+    final token = _token;
+    if (token == null) throw Exception('Não autenticado');
+    final s = await _api.criarSolicitacao(
+      token,
+      titulo: titulo,
+      descricao: descricao,
+      categoria: categoria,
+      cidade: cidade,
+      valorEstimado: valorEstimado,
+    );
+    await carregarTudo();
+    return s;
+  }
+
   Future<SolicitacaoServico> obterServico(String servicoId) async {
     final token = _token;
     if (token == null) throw Exception('Não autenticado');

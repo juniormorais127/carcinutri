@@ -136,10 +136,10 @@ def listar_minhas_solicitacoes(
 @router.post("/servicos", response_model=ServicoOut, status_code=status.HTTP_201_CREATED)
 def criar_solicitacao(
     payload: ServicoSolicitacaoCreate,
-    usuario: User = Depends(requer_role(RoleEnum.produtor)),
+    usuario: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Cria uma nova solicitação de serviço (apenas produtores)."""
+    """Cria uma nova solicitação de serviço no marketplace."""
     solicitacao = ServicoSolicitacao(
         produtor_id=usuario.id,
         titulo=payload.titulo,
