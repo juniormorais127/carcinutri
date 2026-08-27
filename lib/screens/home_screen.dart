@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(Icons.water_drop_rounded),
             SizedBox(width: 10),
-            Text('AQUACENSO'),
+            Text('CARCINUTRI'),
           ],
         ),
       ),

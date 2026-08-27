@@ -1,11 +1,11 @@
 {
-    "name": "AQUACENSO",
-    "short_name": "AQUACENSO",
+    "name": "CARCINUTRI",
+    "short_name": "CARCINUTRI",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#16A34A",
     "theme_color": "#16A34A",
-    "description": "AQUACENSO — app offline de calculadoras de carcinicultura.",
+    "description": "CARCINUTRI — app offline de calculadoras de carcinicultura.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

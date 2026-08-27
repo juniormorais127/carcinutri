@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Assinatura visual global do AQUACENSO.
+/// Assinatura visual global do CARCINUTRI.
 ///
 /// Fica acima das rotas para também alcançar telas empilhadas, mas não recebe
 /// eventos nem participa da árvore de acessibilidade.
@@ -39,7 +39,7 @@ class BrandWatermarkLayer extends StatelessWidget {
                         if (mostrarNome) ...[
                           const SizedBox(width: 7),
                           Text(
-                            'AQUACENSO',
+                            'CARCINUTRI',
                             style: TextStyle(
                               color: cores.onSurface,
                               fontSize: 18,

@@ -284,7 +284,7 @@ class CarciniApp extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: state,
       child: MaterialApp.router(
-        title: 'AQUACENSO',
+        title: 'CARCINUTRI',
         theme: _temaClaro,
         darkTheme: _temaEscuro,
         themeMode: ThemeMode.system,
