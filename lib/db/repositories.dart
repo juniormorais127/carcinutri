@@ -18,6 +18,16 @@ class ViveiroRepositorio {
     return v;
   }
 
+  Future<List<Viveiro>> listarPendentes() async {
+    final registros = await _store.find(
+      _db,
+      finder: Finder(filter: Filter.equals('sincronizado', false)),
+    );
+    return registros
+        .map((r) => Viveiro.fromJson(Map<String, Object?>.from(r.value as Map)))
+        .toList();
+  }
+
   Future<void> salvar(Viveiro v) async {
     await _store.record(v.id).put(_db, v.toJson());
   }
@@ -45,6 +55,16 @@ class CalculoRepositorio {
         .toList();
     c.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     return c;
+  }
+
+  Future<List<Calculo>> listarPendentes() async {
+    final registros = await _store.find(
+      _db,
+      finder: Finder(filter: Filter.equals('sincronizado', false)),
+    );
+    return registros
+        .map((r) => Calculo.fromJson(Map<String, Object?>.from(r.value as Map)))
+        .toList();
   }
 
   Future<void> salvar(Calculo c) async {
@@ -77,6 +97,17 @@ class BiometriaRepositorio {
     return b;
   }
 
+  Future<List<Biometria>> listarPendentes() async {
+    final registros = await _store.find(
+      _db,
+      finder: Finder(filter: Filter.equals('sincronizado', false)),
+    );
+    return registros
+        .map(
+            (r) => Biometria.fromJson(Map<String, Object?>.from(r.value as Map)))
+        .toList();
+  }
+
   Future<void> salvar(Biometria b) async {
     await _store.record(b.id).put(_db, b.toJson());
   }
@@ -105,6 +136,17 @@ class QualidadeAguaRepositorio {
         .toList();
     q.sort((a, b) => b.data.compareTo(a.data));
     return q;
+  }
+
+  Future<List<QualidadeAgua>> listarPendentes() async {
+    final registros = await _store.find(
+      _db,
+      finder: Finder(filter: Filter.equals('sincronizado', false)),
+    );
+    return registros
+        .map((r) =>
+            QualidadeAgua.fromJson(Map<String, Object?>.from(r.value as Map)))
+        .toList();
   }
 
   Future<void> salvar(QualidadeAgua q) async {

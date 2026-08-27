@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../domain/modelos.dart';
 import '../domain/painel.dart';
+import '../domain/usuario.dart';
 import '../state/app_state.dart';
+import '../state/auth_state.dart';
 import '../widgets/responsive_layout.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,6 +25,56 @@ class _HomeScreenState extends State<HomeScreen> {
     _pesoAlvo.dispose();
     _precoKg.dispose();
     super.dispose();
+  }
+
+  /// Badge com o nome e o perfil (Produtor / Técnico de campo) do usuário.
+  Widget _perfilBadge() {
+    final auth = context.watch<AuthState>();
+    final usuario = auth.usuario;
+    if (usuario == null) return const SizedBox.shrink();
+    final cores = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            usuario.nome,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: usuario.perfil == PerfilUsuario.tecnico
+                  ? cores.tertiaryContainer
+                  : cores.primaryContainer,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              usuario.perfil.rotulo,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: usuario.perfil == PerfilUsuario.tecnico
+                        ? cores.onTertiaryContainer
+                        : cores.onPrimaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _botaoSair() {
+    return IconButton(
+      tooltip: 'Sair',
+      icon: const Icon(Icons.logout),
+      onPressed: () => context.read<AuthState>().logout(),
+    );
   }
 
   @override
@@ -50,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('CARCINUTRI'),
           ],
         ),
+        actions: [_perfilBadge(), _botaoSair()],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/viveiro'),

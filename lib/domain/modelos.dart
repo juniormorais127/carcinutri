@@ -33,6 +33,10 @@ class Viveiro {
   final DateTime? dataPovoamento;
   final DateTime criadoEm;
 
+  /// Se `false`, ainda não foi enviado ao servidor (offline-first). Vira `true`
+  /// quando o [SyncService] consegue enviá-lo.
+  final bool sincronizado;
+
   Viveiro({
     required this.id,
     required this.nome,
@@ -41,6 +45,7 @@ class Viveiro {
     this.marcaRacao,
     this.dataPovoamento,
     required this.criadoEm,
+    this.sincronizado = false,
   });
 
   Map<String, Object?> toJson() => {
@@ -51,6 +56,7 @@ class Viveiro {
         'marcaRacao': marcaRacao,
         'dataPovoamento': dataPovoamento?.toIso8601String(),
         'criadoEm': criadoEm.toIso8601String(),
+        'sincronizado': sincronizado,
       };
 
   factory Viveiro.fromJson(Map<String, Object?> json) => Viveiro(
@@ -63,6 +69,7 @@ class Viveiro {
             ? null
             : DateTime.parse(json['dataPovoamento']! as String),
         criadoEm: DateTime.parse(json['criadoEm']! as String),
+        sincronizado: json['sincronizado'] as bool? ?? false,
       );
 
   Viveiro copiarCom({
@@ -80,6 +87,20 @@ class Viveiro {
         marcaRacao: marcaRacao,
         dataPovoamento: dataPovoamento,
         criadoEm: criadoEm,
+        // Uma edição precisa ser reenviada ao servidor.
+        sincronizado: false,
+      );
+
+  /// Cópia com a flag de sincronização marcada como enviada.
+  Viveiro marcadoSincronizado() => Viveiro(
+        id: id,
+        nome: nome,
+        areaHa: areaHa,
+        densidadePadrao: densidadePadrao,
+        marcaRacao: marcaRacao,
+        dataPovoamento: dataPovoamento,
+        criadoEm: criadoEm,
+        sincronizado: true,
       );
 }
 
@@ -95,6 +116,7 @@ class Calculo {
   /// Itens de resultado (rótulo → valor) exibidos ao salvar.
   final Map<String, String> resultado;
   final DateTime criadoEm;
+  final bool sincronizado;
 
   Calculo({
     required this.id,
@@ -103,6 +125,7 @@ class Calculo {
     required this.entradas,
     required this.resultado,
     required this.criadoEm,
+    this.sincronizado = false,
   });
 
   Map<String, Object?> toJson() => {
@@ -112,6 +135,7 @@ class Calculo {
         'entradas': entradas,
         'resultado': resultado,
         'criadoEm': criadoEm.toIso8601String(),
+        'sincronizado': sincronizado,
       };
 
   factory Calculo.fromJson(Map<String, Object?> json) => Calculo(
@@ -125,6 +149,18 @@ class Calculo {
           (k, v) => MapEntry(k as String, v as String),
         ),
         criadoEm: DateTime.parse(json['criadoEm']! as String),
+        sincronizado: json['sincronizado'] as bool? ?? false,
+      );
+
+  /// Cópia com a flag de sincronização marcada como enviada.
+  Calculo marcadoSincronizado() => Calculo(
+        id: id,
+        viveiroId: viveiroId,
+        tipo: tipo,
+        entradas: entradas,
+        resultado: resultado,
+        criadoEm: criadoEm,
+        sincronizado: true,
       );
 }
 
@@ -142,12 +178,15 @@ class Biometria {
   /// Peso médio em gramas = pesoAmostraKg × 1000 / nAmostrado.
   late final double pesoMedio = pesoAmostraKg * 1000 / nAmostrado;
 
+  final bool sincronizado;
+
   Biometria({
     required this.id,
     required this.viveiroId,
     required this.data,
     required this.pesoAmostraKg,
     required this.nAmostrado,
+    this.sincronizado = false,
   }) {
     if (nAmostrado <= 0) {
       throw ArgumentError.value(nAmostrado, 'nAmostrado',
@@ -162,6 +201,7 @@ class Biometria {
         'pesoAmostraKg': pesoAmostraKg,
         'nAmostrado': nAmostrado,
         'pesoMedio': pesoMedio,
+        'sincronizado': sincronizado,
       };
 
   factory Biometria.fromJson(Map<String, Object?> json) => Biometria(
@@ -170,6 +210,17 @@ class Biometria {
         data: DateTime.parse(json['data']! as String),
         pesoAmostraKg: (json['pesoAmostraKg']! as num).toDouble(),
         nAmostrado: (json['nAmostrado']! as num).toInt(),
+        sincronizado: json['sincronizado'] as bool? ?? false,
+      );
+
+  /// Cópia com a flag de sincronização marcada como enviada.
+  Biometria marcadoSincronizado() => Biometria(
+        id: id,
+        viveiroId: viveiroId,
+        data: data,
+        pesoAmostraKg: pesoAmostraKg,
+        nAmostrado: nAmostrado,
+        sincronizado: true,
       );
 }
 
@@ -187,6 +238,8 @@ class QualidadeAgua {
   final double? nitrito;
   final double? alcalinidade;
 
+  final bool sincronizado;
+
   QualidadeAgua({
     required this.id,
     required this.viveiroId,
@@ -197,6 +250,7 @@ class QualidadeAgua {
     this.amonia,
     this.nitrito,
     this.alcalinidade,
+    this.sincronizado = false,
   });
 
   Map<String, Object?> toJson() => {
@@ -209,6 +263,7 @@ class QualidadeAgua {
         'amonia': amonia,
         'nitrito': nitrito,
         'alcalinidade': alcalinidade,
+        'sincronizado': sincronizado,
       };
 
   factory QualidadeAgua.fromJson(Map<String, Object?> json) => QualidadeAgua(
@@ -221,5 +276,20 @@ class QualidadeAgua {
         amonia: (json['amonia'] as num?)?.toDouble(),
         nitrito: (json['nitrito'] as num?)?.toDouble(),
         alcalinidade: (json['alcalinidade'] as num?)?.toDouble(),
+        sincronizado: json['sincronizado'] as bool? ?? false,
+      );
+
+  /// Cópia com a flag de sincronização marcada como enviada.
+  QualidadeAgua marcadoSincronizado() => QualidadeAgua(
+        id: id,
+        viveiroId: viveiroId,
+        data: data,
+        od: od,
+        ph: ph,
+        temperatura: temperatura,
+        amonia: amonia,
+        nitrito: nitrito,
+        alcalinidade: alcalinidade,
+        sincronizado: true,
       );
 }

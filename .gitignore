@@ -41,3 +41,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Backend (FastAPI / Python)
+backend/.env
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+

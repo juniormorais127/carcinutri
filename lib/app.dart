@@ -9,73 +9,16 @@ import 'screens/calculadoras_screen.dart';
 import 'screens/crescimento_screen.dart';
 import 'screens/historico_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/mare_screen.dart';
 import 'screens/projecao_screen.dart';
+import 'screens/registro_screen.dart';
 import 'screens/viveiro_form_screen.dart';
 import 'screens/viveiro_painel_screen.dart';
 import 'state/app_state.dart';
+import 'state/auth_state.dart';
+import 'state/sync_service.dart';
 import 'widgets/brand_watermark.dart';
-
-final GoRouter _router = GoRouter(
-  routes: [
-    // Abas principais (rodapé): Início, Projeção e Maré.
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          _AppShell(navigationShell: navigationShell),
-      branches: [
-        StatefulShellBranch(
-          routes: [GoRoute(path: '/', builder: (_, __) => const HomeScreen())],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-                path: '/projecao', builder: (_, __) => const ProjecaoScreen()),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(path: '/mare', builder: (_, __) => const MareScreen()),
-          ],
-        ),
-      ],
-    ),
-    // Telas empilhadas (abrem em tela cheia sobre as abas).
-    GoRoute(
-        path: '/calculadoras', builder: (_, __) => const CalculadorasScreen()),
-    GoRoute(
-        path: '/arracoamento-recomendado',
-        builder: (_, __) => const ArracoamentoRecomendadoScreen()),
-    GoRoute(
-        path: '/calculadora/:tipo',
-        builder: (_, s) => CalculoScreen(
-              tipo: s.pathParameters['tipo']!,
-              viveiroId: s.uri.queryParameters['viveiro'],
-            )),
-    GoRoute(
-        path: '/crescimento', builder: (_, __) => const CrescimentoScreen()),
-    GoRoute(
-        path: '/crescimento/:id',
-        builder: (_, s) =>
-            CrescimentoScreen(viveiroId: s.pathParameters['id'])),
-    GoRoute(path: '/viveiro', builder: (_, __) => const ViveiroFormScreen()),
-    GoRoute(
-        path: '/viveiro/:id',
-        builder: (_, s) => ViveiroFormScreen(id: s.pathParameters['id'])),
-    GoRoute(
-        path: '/painel/:id',
-        builder: (_, s) => ViveiroPainelScreen(id: s.pathParameters['id']!)),
-    GoRoute(
-        path: '/biometria/:viveiroId',
-        builder: (_, s) =>
-            BiometriaFormScreen(viveiroId: s.pathParameters['viveiroId'])),
-    GoRoute(
-        path: '/biometria', builder: (_, __) => const BiometriaFormScreen()),
-    GoRoute(path: '/historico', builder: (_, __) => const HistoricoScreen()),
-    GoRoute(
-        path: '/historico/:id',
-        builder: (_, s) => HistoricoScreen(id: s.pathParameters['id'])),
-  ],
-);
 
 /// Casca das abas: corpo = branch ativa + barra de navegação no rodapé.
 class _AppShell extends StatelessWidget {
@@ -275,14 +218,52 @@ ThemeData _criarTema(Brightness brilho) {
   );
 }
 
-class CarciniApp extends StatelessWidget {
+class CarciniApp extends StatefulWidget {
   final AppState state;
-  const CarciniApp({super.key, required this.state});
+  final AuthState auth;
+  final SyncService sync;
+  const CarciniApp({
+    super.key,
+    required this.state,
+    required this.auth,
+    required this.sync,
+  });
+
+  @override
+  State<CarciniApp> createState() => _CarciniAppState();
+}
+
+class _CarciniAppState extends State<CarciniApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = _criarRouter(widget.auth);
+    // Reavalia o redirect e sincroniza quando o estado de login muda.
+    widget.auth.addListener(_aoMudarAuth);
+  }
+
+  @override
+  void dispose() {
+    widget.auth.removeListener(_aoMudarAuth);
+    super.dispose();
+  }
+
+  void _aoMudarAuth() {
+    _router.refresh();
+    if (widget.auth.autenticado) {
+      widget.sync.sincronizar();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: state,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: widget.state),
+        ChangeNotifierProvider.value(value: widget.auth),
+      ],
       child: MaterialApp.router(
         title: 'CARCINUTRI',
         theme: _temaClaro,
@@ -295,4 +276,82 @@ class CarciniApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Monta o roteador com o gate de autenticação.
+GoRouter _criarRouter(AuthState auth) {
+  final rotas = <RouteBase>[
+    // Abas principais (rodapé): Início, Projeção e Maré.
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          _AppShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [GoRoute(path: '/', builder: (_, __) => const HomeScreen())],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+                path: '/projecao', builder: (_, __) => const ProjecaoScreen()),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(path: '/mare', builder: (_, __) => const MareScreen()),
+          ],
+        ),
+      ],
+    ),
+    // Telas empilhadas (abrem em tela cheia sobre as abas).
+    GoRoute(
+        path: '/calculadoras', builder: (_, __) => const CalculadorasScreen()),
+    GoRoute(
+        path: '/arracoamento-recomendado',
+        builder: (_, __) => const ArracoamentoRecomendadoScreen()),
+    GoRoute(
+        path: '/calculadora/:tipo',
+        builder: (_, s) => CalculoScreen(
+              tipo: s.pathParameters['tipo']!,
+              viveiroId: s.uri.queryParameters['viveiro'],
+            )),
+    GoRoute(
+        path: '/crescimento', builder: (_, __) => const CrescimentoScreen()),
+    GoRoute(
+        path: '/crescimento/:id',
+        builder: (_, s) =>
+            CrescimentoScreen(viveiroId: s.pathParameters['id'])),
+    GoRoute(path: '/viveiro', builder: (_, __) => const ViveiroFormScreen()),
+    GoRoute(
+        path: '/viveiro/:id',
+        builder: (_, s) => ViveiroFormScreen(id: s.pathParameters['id'])),
+    GoRoute(
+        path: '/painel/:id',
+        builder: (_, s) => ViveiroPainelScreen(id: s.pathParameters['id']!)),
+    GoRoute(
+        path: '/biometria/:viveiroId',
+        builder: (_, s) =>
+            BiometriaFormScreen(viveiroId: s.pathParameters['viveiroId'])),
+    GoRoute(
+        path: '/biometria', builder: (_, __) => const BiometriaFormScreen()),
+    GoRoute(path: '/historico', builder: (_, __) => const HistoricoScreen()),
+    GoRoute(
+        path: '/historico/:id',
+        builder: (_, s) => HistoricoScreen(id: s.pathParameters['id'])),
+    // Autenticação.
+    GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+    GoRoute(path: '/registro', builder: (_, __) => const RegistroScreen()),
+  ];
+
+  return GoRouter(
+    initialLocation: '/',
+    redirect: (context, state) {
+      final autenticado = auth.autenticado;
+      final emLogin = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/registro';
+      if (!autenticado && !emLogin) return '/login';
+      if (autenticado && emLogin) return '/';
+      return null;
+    },
+    routes: rotas,
+  );
 }
